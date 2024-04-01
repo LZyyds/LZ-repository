@@ -1,7 +1,7 @@
 # -*- coding = utf-8 -*-
 # @Time :  2024/3/30 21:06
 # @Author : 梁正
-# @File : 测试列表页.py
+# @File : public_funs.py
 # @Software : PyCharm
 
 from selenium.webdriver.common.action_chains import ActionChains

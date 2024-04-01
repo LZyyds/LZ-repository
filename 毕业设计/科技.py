@@ -4,7 +4,7 @@
 # @File : 科技.py
 # @Software : PyCharm
 
-from public_fucs import *
+from public_funs import *
 
 # 声明一个变量来记录重试的记录次数
 retry_num = 0
