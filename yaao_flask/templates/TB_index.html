@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>淘宝操作指引</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    .container {
+      display: flex;
+      justify-content: space-between;
+      overflow-x: auto;
+    }
+    .left-container {
+      /*flex: 1;*/
+      padding: 20px;
+      background-color: #d9e8f4;
+      max-width: 350px;
+      overflow-y: auto;
+      overflow-x: auto;
+    }
+    .right-container {
+      display: flex;
+      max-width: 1800px;
+      overflow-x: auto;
+      float: right;
+    }
+    .form-group {
+      margin-bottom: 20px;
+      max-width: 320px;
+    }
+    .form-group input {
+      display: block;
+      max-width: 300px;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .html-group {
+      justify-content: space-around;
+      max-width: 320px;
+      flex-wrap: nowrap;
+      background-color: #f1f1f1;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .start-button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .generate-button {
+      display: block;
+      float: right;
+      width: 40%;
+      padding: 10px;
+      background-color: #e4606d;
+      color: black;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .export-button {
+      display: block;
+      float: right;
+      padding: 10px;
+      cursor: pointer;
+    }
+    .console1 {
+      min-width: 120px;
+      max-width: 120px;
+      height: 880px;
+      padding: 10px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      background-color: white;
+      font-size: 18px;
+      overflow-y: auto;
+    }
+    .console2 {
+      max-width: 1200px;
+      min-width: 1100px;
+      height: 880px;
+      padding: 10px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      background-color: white;
+      font-size: 18px;
+      overflow-y: auto;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 70px; /* 调整这个值来控制表格整体往下移动的距离 */
+      overflow-y: auto;
+      overflow-x: auto;
+    }
+    th, td {
+      max-width: 180px;  /* 设置每个td的最大宽度 */
+      max-height: 100px;  /* 设置每个td的最大高度 */
+      overflow: hidden;   /* 超出部分隐藏 */
+      text-overflow: ellipsis;  /* 超出部分显示省略号 */
+      /*white-space: nowrap;  !* 不换行显示 *!*/
+      border: 1px solid black; /* 设置边框 */
+    }
+    thead {
+        position: sticky;
+        top: 70px;
+        background-color: #cccccc;
+    }
+    .fill-input1{
+        width: 30px; /* 调整宽度 */
+        height: 30px; /* 调整高度 */
+        vertical-align: middle; /* 垂直居中对齐 */
+    }
+    .fill-input2{
+        margin-bottom: 25px; /* 控制输入框上下距离 */
+        min-width: 60px;
+        font-size: 18px; /* 控制输入文本字体大小 */
+        color: red; /* 控制输入字体颜色 */
+    }
+    .grid-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between; /* 控制项目在行上的对齐方式 */
+    }
+    .grid-item {
+      /*flex: 0 0 25%;*/
+      max-width: 20%;
+      flex: 0 0 calc(25% - 20px); /* 计算每个grid-item需要的宽度 */
+      box-sizing: border-box;
+      border: 1px solid #fa8072; /* 设置边框样式和颜色 */
+      background-color: #f5f5f5; /* 设置背景色 */
+      padding: 10px; /* 添加内边距以增加间距 */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .item-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .item-info {
+      flex-grow: 1;
+      margin-left: 10px;
+    }
+
+    .info {
+      text-align: center;
+    }
+    .type, .shop {
+        border: 1px solid #a72d01;
+    }
+    .num-of-customers, .title {
+        font-weight: bold;
+    }
+    #consoleContainer {
+      display: none;
+    }
+    #toggleBtn {
+      display: block;
+    }
+  </style>
+    <!-- Template Main CSS File -->
+  <link href="../static/assets/css/style.css" rel="stylesheet">
+<!--  <script src="../static/assets/js/socket.io.js"></script>-->
+</head>
+<body>
+  <header id="header">
+    <div class="container">
+
+      <div class="logo">
+        <h1 class="text-light"><a href="https://www.baidu.com/"></a></h1>
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <a href="https://www.baidu.com/"><img src="https://7n.kaokao.mobi/zelinAI.png" alt="" class="img-fluid"></a>
+      </div>
+        <a href="https://www.taobao.com/" class="logo" >
+          <img class="logo" src="https://gw.alicdn.com/imgextra/i3/O1CN01uRz3de23mzWofmPYX_!!6000000007299-2-tps-143-59.png" height=40 width=150 alt=""></a>
+      <nav class="nav-menu float-right d-none d-lg-block">
+        <ul>
+          <li class="active"><a href="/index">首页<i class="la la-angle-down"></i></a></li>
+          <li><a href="/TB_index">淘宝操作</a></li>
+          <li><a href="/JD_index">京东操作（扫码填价）</a></li>
+          <li><a href="/JDSZ_index">商智爬取</a></li>
+          <li><a href="/new_JD_index">京东操作（机器填价）</a></li>
+
+        </ul>
+      </nav><!-- .nav-menu -->
+
+    </div>
+  </header><!-- End Header -->
+  <div class="container">
+    <div class="sidebar">
+      <h3>爬取淘宝商城操作</h3>
+      <div class="left-container">
+        <label for="html-group1" style=" font-size: 20px;color: black;padding: 20px 20px 20px;">步骤一：</label>
+        <div class="html-group" id="html-group1">
+          <div class="form-group">
+            <label for="input1">请输入爬取关键词:</label>
+            <input type="text" id="input1">
+          </div>
+            <button id="start-button1" class="start-button">启动爬取目录页</button><br />
+            <div id="start-message1" class="start-message" style="height: 30px; width: 100%; background-color: #f2f2f2; padding: 0; border: 1px solid #ccc;"></div>
+        </div>
+
+      <br />
+
+      <label for="html-group2" style=" font-size: 20px;color: black;padding: 20px 20px 20px;">步骤二：</label>
+      <div class="html-group" id="html-group2">
+        <div class="form-group">
+          <label for="input4">筛选词（空格分隔）：</label>
+          <button id="importBtn">导入文件</button>
+          <input type="text" id="input4" placeholder="">
+          <input type="file" id="fileInput" style="display:none;">
+
+        </div>
+
+        <label for="type-select1">商品类别：</label>
+        <select id="type-select1" style="width: 60px; height: 40px;">
+          <option value="淘宝">淘宝</option>
+          <option value="天猫">天猫</option>
+          <option value="全部">全部</option>
+        </select>
+        <button id="generate-button" class="generate-button">生成html</button>
+        <div class="export-button">
+          <button id="exportButton1" style="color: #b21f2d">确认勾选</button></div>
+        <div class="export-button">
+          <button id="clearButton1">清空勾选</button></div>
+        <div class="export-button">
+          <button id="selectAllButton">全部勾选</button></div>
+        <div id="generate-message1" class="generate-message"  style="height: 32px; width: 35%; background-color: #f2f2f2; padding: 0; border: 1px solid #ccc;"></div>
+
+      </div>
+
+      <br />
+      <label for="html-group3" style=" font-size: 20px;color: black;padding: 20px 20px 20px;">步骤三：</label>
+      <div class="html-group" id="html-group3">
+        <label for="type-select2">是否保税区：</label>
+        <select id="type-select2" style="width: 60px; height: 40px;">
+          <option value="保税区">保税区</option>
+          <option value="非保税区">非保税区</option>
+          <option value="全部">全部</option>
+        </select>
+        <button id="start-button2" class="start-button">启动爬取详情页</button><br />
+  <!--      <div id="start-message2" class="start-message" style="height: 40px; width: 30%; background-color: #f2f2f2; padding: 0; border: 1px solid #ccc;"></div>-->
+        <div class="export-button">
+          <button id="exportButton2">导出为csv</button></div>
+        <div class="export-button">
+          <button id="clearButton2">一键清空价格</button></div>
+          <div id="generate-message2" class="generate-message"  style="height: 35px; width: 30%; background-color: #f2f2f2; padding: 0; border: 1px solid #ccc;"></div>
+        <div class="form-group">
+          <input type="text" id="filenameInput2" placeholder="导出文件名 (不填则取当前时刻命名)"></div>
+        </div>
+      </div>
+    </div>
+    <div class="right-container">
+      <button id="toggleBtn">展开/隐藏</button>
+      <div id="consoleContainer" class="console1">
+        <!-- 悬浮面板的内容 -->
+      </div>
+      <div id="console2" class="console2"></div>
+    </div>
+  </div>
+  <script>
+  // 启动目录页按钮点击事件
+  document.getElementById('start-button1').addEventListener('click', function() {
+    var keyword = document.getElementById('input1').value;
+    // var save_path = document.getElementById('input2').value;
+    // var login_path = document.getElementById('input3').value;
+    // 发送POST请求到后端
+    fetch('/start_tb_dir', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Content-Type-Options': 'nosniff'
+      },
+      body: JSON.stringify({
+        keyword: keyword,
+        // save_path: save_path,
+        // login_path: login_path
+      })
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function (data) {
+      console.log(data.msg) // 检查响应数据的结构和内容
+      // 更新页面内容
+      document.getElementById('consoleContainer').innerHTML = data.msg.replace(/\n/g, "<br>");
+      var uploadMessage = document.getElementById('start-message1');
+      if (data.success) {
+        uploadMessage.textContent = '  爬取完毕，可执行步骤二  ';
+        uploadMessage.style.color = 'green';
+      } else {
+        uploadMessage.textContent = '爬取失败';
+        uploadMessage.style.color = 'red';
+      }
+    })
+    .catch(function(error) {
+      console.log(error); // 检查响应数据的结构和内容
+      document.getElementById('consoleContainer').innerHTML = error;
+    });
+  });
+
+  // 导入黑名单文件
+  document.getElementById('importBtn').addEventListener('click', function() {
+      document.getElementById('fileInput').click(); // 点击按钮时触发文件选择对话框
+  });
+
+  document.getElementById('fileInput').addEventListener('change', function() {
+      const file = this.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      fetch('/tb_uploadFile', {
+          method: 'POST',
+          body: formData
+      })
+      .then(function(response) {
+          return response.json();
+      })
+      .then(function (data) {
+          console.log(data);
+          // 这里可以进一步操作返回的数据
+          document.getElementById('input4').value = data.msg;
+      })
+      .catch(function(error) {
+          console.error('Error:', error);
+      });
+  });
+
+
+  // 生成html按钮点击事件
+  document.getElementById('generate-button').addEventListener('click', function() {
+    var keyword = document.getElementById('input1').value;
+    var inputVal = document.getElementById('input4').value;
+    // var itemList = inputVal.split(' ');
+    var typeSelect1 = document.getElementById('type-select1');
+    var data_range = typeSelect1.value;
+    // 发送POST请求到后端
+    fetch('/generate_html', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        data_range: data_range,
+        inputVal: inputVal,
+        keyword: keyword
+      })
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function (data) {
+      // console.log(data.msg) // 检查响应数据的结构和内容
+      // 更新页面内容
+      document.getElementById('console2').innerHTML = data.msg;
+      var generateMessage = document.getElementById('generate-message1');
+      if (data.success) {
+        generateMessage.textContent = 'html成功生成';
+        generateMessage.style.color = 'green';
+
+      } else {
+        generateMessage.textContent = 'html生成失败';
+        generateMessage.style.color = 'red';
+      }
+    })
+    .catch(function(error) {
+      console.log(error); // 检查响应数据的结构和内容
+      document.getElementById('console2').innerHTML = error;
+    });
+  });
+
+  // 启动详情页按钮点击事件
+  document.getElementById('start-button2').addEventListener('click', function() {
+    var keyword = document.getElementById('input1').value;
+    // var read_path = document.getElementById('input5').value;
+    var typeSelect1 = document.getElementById('type-select1');
+    var data_range = typeSelect1.value;
+    var typeSelect2 = document.getElementById('type-select2');
+    var is_tax = typeSelect2.value;
+    // var save_path = document.getElementById('input2').value;
+    // var login_path = document.getElementById('input3').value;
+    // 发送POST请求到后端
+    fetch('/start_tb_detail', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Content-Type-Options': 'nosniff'
+      },
+      body: JSON.stringify({
+        // read_path: read_path,
+        data_range: data_range,
+        keyword: keyword,
+        is_tax: is_tax
+        // save_path: save_path,
+        // login_path: login_path
+      })
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function (data) {
+      // console.log(data.msg) // 检查响应数据的结构和内容
+      // 更新页面内容
+      // document.getElementById('console1').innerHTML = '';
+      document.getElementById('console2').innerHTML = data.msg;
+      var uploadMessage2 = document.getElementById('generate-message2');
+      if (data.success) {
+        uploadMessage2.textContent = '  全部爬取完毕  ';
+        uploadMessage2.style.color = 'green';
+
+      } else {
+        uploadMessage2.textContent = '爬取失败';
+        uploadMessage2.style.color = 'red';
+      }
+    })
+    .catch(function(error) {
+      console.log(error); // 检查响应数据的结构和内容
+      document.getElementById('console2').innerHTML = error;
+    });
+  });
+
+
+  // 在页面加载完成时执行的函数
+  window.addEventListener('load', function() {
+    // 获取所有带有类名"fill-input1"的复选框元素
+    var inputElements = document.querySelectorAll('.fill-input1');
+    // 为每个复选框元素设置不同的id
+    inputElements.forEach(function(inputElement, index) {
+      inputElement.id = 'input-' + (index + 1);
+    });
+    // 从本地存储中获取之前保存的值，并将其赋值给复选框的checked属性
+    inputElements.forEach(function(inputElement) {
+      var savedValue = localStorage.getItem(inputElement.id + '-value');
+      if (savedValue) {
+        inputElement.checked = (savedValue === true);
+      }
+      // 监听复选框的改变事件，当状态改变时保存新的值到本地存储
+      inputElement.addEventListener('change', function(event) {
+        var newValue = event.target.checked;
+        localStorage.setItem(event.target.id + '-value', newValue);
+      });
+    });
+    // 添加事件监听器以导出数据
+    var exportButton = document.getElementById('exportButton1');
+    exportButton.addEventListener('click', function() {
+      exportToExcel1();
+    });
+    // 添加清空按钮的点击事件处理程序
+    var clearButton = document.getElementById('clearButton1');
+    clearButton.addEventListener('click', function() {
+      clearInputs1();
+    });
+    // 添加全选按钮的点击事件处理程序
+    var selectAllButton = document.getElementById('selectAllButton');
+    selectAllButton.addEventListener('click', function() {
+      selectAllInputs();
+    });
+  });
+
+  // 清空复选框和本地存储的值
+  function clearInputs1() {
+    var inputElements = document.querySelectorAll('.fill-input1');
+    inputElements.forEach(function(inputElement) {
+      inputElement.checked = false;
+      localStorage.removeItem(inputElement.id + '-value');
+    });
+  }
+    function selectAllInputs() {
+    var inputElements = document.querySelectorAll('.fill-input1');
+    inputElements.forEach(function(inputElement) {
+      inputElement.checked = true;
+      localStorage.setItem(inputElement.id + '-value', true);  // 设置为勾选状态并存储到localstorage中
+    });
+  }
+  // 导出数据到Excel
+  function exportToExcel1() {
+    var data = [];
+    // 获取商品行元素
+    var gridItems = document.querySelectorAll('.grid-item');
+    gridItems.forEach(function(item) {
+      var rowData = [];
+      // 获取链接
+      var link = item.querySelector('a').getAttribute('href');
+      rowData.push(link);
+      // 获取id编号
+      var itemId = item.querySelector('.item-id').innerText.replace('ID:', '').trim();
+      rowData.push(itemId);
+      // 获取复选框值并添加到rowData
+      var checkbox = item.querySelector('.fill-input1');
+      rowData.push(checkbox.checked);
+      // 将rowData添加到data列表
+      data.push(rowData);
+    });
+    var keyword = document.getElementById('input1').value;
+        // 发送HTTP请求
+      fetch('/tb_export-csv', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            keyword: keyword,
+            record_data: data,
+        }),
+      })
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function (data) {
+        // console.log(data.msg) // 检查响应数据的结构和内容
+        // 更新页面内容
+        var generateMessage = document.getElementById('generate-message1');
+        if (data.success) {
+          generateMessage.textContent = '勾选已保存';
+          generateMessage.style.color = 'green';
+        } else {
+          generateMessage.textContent = '保存失败';
+          generateMessage.style.color = 'red';
+        }
+      })
+  // var headers = ['', '关键词', '商品链接', '类型', '标题', '商品ID', '店铺', '收货人数', '是否保留']; // 替换成你的实际字段名
+  // var csvContent = "data:text/csv;charset=utf-8";
+  // var data = [];
+  // var price_data = [];
+  // // 获取复选框元素的值
+  // var inputElements = document.querySelectorAll('.fill-input1');
+  // inputElements.forEach(function(inputElement) {
+  //   price_data.push(inputElement.checked);
+  // });
+  // // 获取商品行元素
+  // var productRows = document.body.querySelector('tbody').querySelectorAll('tr');
+  // productRows.forEach(function(row) {
+  //   var rowData = [];
+  //   // 获取<tr>中的第1到第7个<td>的值
+  //   var tableData = row.querySelectorAll('td');
+  //   for (var i = 0; i <= 6; i++) {
+  //     rowData.push(tableData[i].innerText);
+  //   }
+  //   // 将价格字段添加到rowData中
+  //   var rowIndex = Array.from(productRows).indexOf(row);
+  //   rowData.push(price_data[rowIndex]);
+  //   // 将rowData添加到data列表
+  //   data.push(rowData.join(','));
+  // });
+  // // 添加表头
+  // csvContent += headers.join(',') + '\n';
+  // // 添加数据
+  // csvContent += data.join('\n'); // 每行的数据换行
+  // var filenameInput1 = document.getElementById('filenameInput1');
+  // // 获取当前时间
+  // var currentTime = new Date().toLocaleString();
+  // // 使用用户输入的文件名，如果输入框为空则使用当前时间作为默认名称
+  // var filename = filenameInput1.value.trim() || currentTime;
+  // // 创建一个链接并点击进行下载
+  // var encodedUri = encodeURI(csvContent);
+  // var link = document.createElement("a");
+  // link.setAttribute("href", encodedUri);
+  // link.setAttribute("download", filename + ".csv");
+  // document.body.appendChild(link);
+  // // 模拟点击下载链接
+  // link.click();
+  // document.body.removeChild(link); // 下载完成后移除链接
+  }
+
+// 在页面加载完成时执行的函数
+window.addEventListener('load', function() {
+  // 获取所有带有类名"fill-input2"的<input>元素
+  var inputElements = document.querySelectorAll('.fill-input2');
+  // 为每个<input>元素设置不同的id
+  inputElements.forEach(function(inputElement, index) {
+    inputElement.id = 'input-' + (index + 1);
+  });
+  // 从本地存储中获取之前保存的值，并将其赋值给<input>的value属性
+  inputElements.forEach(function(inputElement) {
+    var savedValue = localStorage.getItem(inputElement.id + '-value');
+    if (savedValue) {
+      inputElement.value = savedValue;
+    }
+    // 监听<input>的输入事件，当输入改变时保存新的值到本地存储
+    inputElement.addEventListener('input', function(event) {
+      var newValue = event.target.value;
+      localStorage.setItem(event.target.id + '-value', newValue);
+    });
+  });
+  // 添加事件监听器以导出数据
+  var exportButton = document.getElementById('exportButton2');
+  exportButton.addEventListener('click', function() {
+    exportToExcel2();
+  });
+});
+  // 添加清空按钮的点击事件处理程序
+  var clearButton = document.getElementById('clearButton2');
+  clearButton.addEventListener('click', function() {
+    clearInputs2();
+});
+
+// 清空输入框和本地存储的值
+function clearInputs2() {
+  var inputElements = document.querySelectorAll('.fill-input2');
+  inputElements.forEach(function(inputElement) {
+    inputElement.value = '';
+    localStorage.removeItem(inputElement.id + '-value');
+  });
+}
+// 导出数据到Excel
+function exportToExcel2() {
+  var headers = ['', '商品链接', '关键词', '类别', '店名', '标题', '商品ID', '月销量', '是否保税区', '发货地', '版本', 'SKU', '价格']; // 替换成你的实际字段名
+  var csvContent = "data:text/csv;charset=utf-8";
+
+  var data = [];
+  var price_data = [];
+    // 获取<input>元素的值
+  var inputElements = document.querySelectorAll('.fill-input2');
+  inputElements.forEach(function(inputElement) {
+    price_data.push(inputElement.value);
+  });
+  // 获取商品行<tr>元素
+  var productRows = document.body.querySelector('tbody').querySelectorAll('tr');
+  productRows.forEach(function(row) {
+    var rowData = [];
+    // 获取<tr>中的第1到第11个<td>的值
+    var tableData = row.querySelectorAll('td');
+    for (var i = 1; i <= 11; i++) {
+      rowData.push(tableData[i].innerText);
+    }
+    // 将价格字段添加到rowData中
+    var rowIndex = Array.from(productRows).indexOf(row);
+    rowData.push(price_data[rowIndex]);
+    // 将rowData添加到data列表
+    data.push(rowData.join(','));
+  });
+  // 添加表头
+  csvContent += headers.join(',') + '\n';
+  // 添加数据
+  csvContent += data.join('\n'); // 每行的数据换行
+  var filenameInput2 = document.getElementById('filenameInput2');
+  var keyword = document.getElementById('input1').value;
+  // 获取当前时间
+  var currentTime = new Date().toLocaleString();
+  // 使用用户输入的文件名，如果输入框为空则使用当前时间作为默认名称
+  var filename = filenameInput2.value.trim() || keyword + currentTime;
+  // 创建一个链接并点击进行下载
+  var encodedUri = encodeURI(csvContent);
+  var link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", filename + ".csv");
+  document.body.appendChild(link);
+  // 模拟点击下载链接
+  link.click();
+  document.body.removeChild(link); // 下载完成后移除链接
+}
+// 隐藏分词展示面板
+document.getElementById("toggleBtn").addEventListener("click", function() {
+  var consoleContainer = document.getElementById("consoleContainer");
+  if (consoleContainer.style.display === "none") {
+    consoleContainer.style.display = "block";
+  } else {
+    consoleContainer.style.display = "none";
+  }
+});
+  </script>
+</body>
+</html>

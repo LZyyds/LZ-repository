@@ -1,0 +1,3 @@
+"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9221 --user-data-dir="D:\selenium_data0"
+
+https://pypi.tuna.tsinghua.edu.cn/simple

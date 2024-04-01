@@ -1,0 +1,4 @@
+@echo off
+cd "C:\Users\EDY\PycharmProjects\pythonProject\work\yaao_flask"
+python app.py
+pause
