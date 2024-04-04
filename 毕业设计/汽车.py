@@ -4,17 +4,11 @@
 # @File : 汽车.py
 # @Software : PyCharm
 
-from public_funs import *
-
-# 声明一个变量来记录重试的记录次数
-retry_num = 0
-# 爬取失败的列表集合
-failed_links = []
-# 文章类型
-article_type = '汽车'
+from crawl_sohu import SohuSpider
 
 
 def main():
+    article_type = '汽车'
     url_dict = {
         'https://www.sohu.com/xchannel/TURBd01EQTNNekV3': [article_type, '新车快报'],
         'https://www.sohu.com/xchannel/TURBd01EQTNNekV4': [article_type, '买车必看'],
@@ -22,7 +16,9 @@ def main():
         'https://www.sohu.com/xchannel/TURBd01EQTNNekV6': [article_type, '车市行情'],
 
     }
-    spider_main(url_dict)
+    spider = SohuSpider(url_dict)
+    spider.spider_main()
 
 
-main()
+if __name__ == '__main__':
+    main()

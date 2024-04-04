@@ -4,17 +4,11 @@
 # @File : 财经.py
 # @Software : PyCharm
 
-from public_funs import *
-
-# 声明一个变量来记录重试的记录次数
-retry_num = 0
-# 爬取失败的列表集合
-failed_links = []
-# 文章类型
-article_type = '财经'
+from crawl_sohu import SohuSpider
 
 
 def main():
+    article_type = '财经'
     url_dict = {
         'https://www.sohu.com/xchannel/tag?key=%E8%B4%A2%E7%BB%8F-%E7%BB%8F%E6%B5%8E%E8%A7%A3%E7%A0%81': [article_type,
                                                                                                           '经济解码'],
@@ -22,7 +16,9 @@ def main():
         'https://www.sohu.com/xchannel/tag?key=%E8%B4%A2%E7%BB%8F-%E5%9F%BA%E9%87%91': [article_type, '基金'],
         'https://www.sohu.com/xchannel/tag?key=%E8%B4%A2%E7%BB%8F-IPO': [article_type, 'IPO'],
     }
-    spider_main(url_dict)
+    spider = SohuSpider(url_dict)
+    spider.spider_main()
 
 
-main()
+if __name__ == '__main__':
+    main()
