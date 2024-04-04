@@ -4,17 +4,12 @@
 # @File : 娱乐.py
 # @Software : PyCharm
 
-from public_funs import *
-
-# 声明一个变量来记录重试的记录次数
-retry_num = 0
-# 爬取失败的列表集合
-failed_links = []
-# 文章类型
-article_type = '娱乐'
+from crawl_sohu import SohuSpider
 
 
 def main():
+    # 文章类型
+    article_type = '娱乐'
     url_dict = {
         'https://www.sohu.com/xchannel/tag?key=%E5%A8%B1%E4%B9%90-%E6%98%8E%E6%98%9F': [article_type, '明星'],
         'https://www.sohu.com/xchannel/tag?key=%E5%A8%B1%E4%B9%90-%E5%85%AB%E5%8D%A6': [article_type, '八卦'],
@@ -24,7 +19,10 @@ def main():
                                                                                                           '网络红人'],
 
     }
-    spider_main(url_dict)
+    spider = SohuSpider(url_dict)
+    spider.spider_main()
 
 
-main()
+if __name__ == '__main__':
+    main()
+
