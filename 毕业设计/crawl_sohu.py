@@ -225,7 +225,7 @@ class SohuSpider:
         """
         # all_data = pd.DataFrame(columns=['类别', '栏目', '标题', '链接', '媒体', '正文', '发布时间', '发布省份'])
         with ThreadPoolExecutor() as executor:
-            pbar = tqdm(total=len(all_link_list), desc=f"{outer_lable_list[0]} 爬取进度")
+            pbar = tqdm(total=len(all_link_list), desc=f"{outer_lable_list[0]} 爬取详情页进度")
 
             def get_web_data_with_progress(link):
                 result = self.get_web_data(link)
@@ -251,7 +251,7 @@ class SohuSpider:
 
         self.process_datetime_column(all_data, '发布时间')
         # print(all_data.tail(5))
-        print(f'{outer_lable_list[0]}文章数据中有%d条重复数据' % all_data.duplicated().sum())
+        print(f'本次爬取 【{outer_lable_list[0]}】 文章数据中有%d条重复数据' % all_data.duplicated().sum())
 
         return all_data
 
@@ -264,7 +264,7 @@ class SohuSpider:
             # 将新数据追加到已有数据后面
             excel_all_data = pd.concat([existing_data, all_data], ignore_index=True)
             duplicat_num = all_data.duplicated().sum()
-            print(f'excel表中有%d条重复数据' % duplicat_num)
+            print(f'合并后excel表中有%d条重复数据' % duplicat_num)
             if duplicat_num != 0:
                 print('执行去重操作···')
                 # 删除重复数据

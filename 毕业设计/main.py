@@ -4,7 +4,7 @@
 # @File : main.py
 # @Software : PyCharm
 
-import concurrent.futures
+from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 import 新闻, 财经, 娱乐, 科技, 汽车
 
@@ -18,7 +18,7 @@ if __name__ == '__main__':
     first_time = datetime.now()
     targets = [新闻.main(), 财经.main(), 娱乐.main(), 科技.main(), 汽车.main()]
 
-    with concurrent.futures.ProcessPoolExecutor(max_workers=3) as executor:
+    with ProcessPoolExecutor(max_workers=3) as executor:
         executor.map(execute_target, targets)
 
     last_time = datetime.now()
