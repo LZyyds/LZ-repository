@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>数据查询系统</title>
+  <meta content="" name="descriptison">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+<!--  <link href="static/assets/img/favicon.png" rel="icon">-->
+<!--  <link href="static/assets/img/apple-touch-icon.png" rel="apple-touch-icon">-->
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,600,600i,700,700i,900" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/icofont/icofont.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/animate.css/animate.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/venobox/venobox.css" rel="stylesheet">
+  <link href="static/assets/vendor/aos/aos.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="static/assets/css/style.css" rel="stylesheet">
+  <style>
+    .grid-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between; /* 控制项目在行上的对齐方式 */
+    }
+    .grid-item {
+      /*flex: 0 0 25%;*/
+      max-width: 33%;
+      flex: 0 0 calc(36% - 20px); /* 计算每个grid-item需要的宽度 */
+      box-sizing: border-box;
+      border: 1px solid #fa8072; /* 设置边框样式和颜色 */
+      background-color: #f5f5f5; /* 设置背景色 */
+      padding: 5px; /* 添加内边距以增加间距 */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .item-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .item-info {
+      flex-grow: 1;
+      margin-left: 10px;
+    }
+    .info {
+     display:flex;
+     flex-direction:row;
+    }
+    .index, .label, .read-num {
+     margin-right:13px;/* 为每个div设置右侧间距 */
+    }
+    .title {
+        font-weight: bold;
+    }
+    .label, .medie, .article-time {
+        border: 1px solid #a72d01;
+    }
+  </style>
+
+</head>
+
+<body>
+
+
+  <!-- ======= Header ======= -->
+  <header id="header">
+    <div class="container" style="display: flex; justify-content: space-between;">
+
+      <div class="logo float-left">
+<!--        <h1 class="text-light"><a href="https://github.com/LZyyds/LZ-repository/"></a></h1>-->
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <a href="https://github.com/LZyyds/LZ-repository/"><img src="static/assets/img/logo.jpg" alt="" class="img-fluid"></a>
+      </div>
+
+        <div style="align-items: center;">
+        {% if table_name == '新闻' %}
+          <div class="buttons">
+            <span class="label" style="background-color: red; color: white; padding: 5px 10px; font-weight: bold; border-radius: 5px;">新闻</span>
+            <a href="/yule" class="btn btn-primary">娱乐</a>
+            <a href="/car" class="btn btn-primary">汽车</a>
+            <a href="/tech" class="btn btn-primary">科技</a>
+            <a href="/fina" class="btn btn-primary">财经</a>
+          </div>
+        {% elif table_name == '娱乐' %}
+        <div class="buttons">
+          <a href="/news" class="btn btn-primary">新闻</a>
+          <span class="label" style="background-color: red; color: white; padding: 5px 10px; font-weight: bold; border-radius: 5px;">娱乐</span>
+          <a href="/car" class="btn btn-primary">汽车</a>
+          <a href="/tech" class="btn btn-primary">科技</a>
+          <a href="/fina" class="btn btn-primary">财经</a>
+        </div>
+        {% elif table_name == '汽车' %}
+        <div class="buttons">
+          <a href="/news" class="btn btn-primary">新闻</a>
+          <a href="/yule" class="btn btn-primary">娱乐</a>
+          <span class="label" style="background-color: red; color: white; padding: 5px 10px; font-weight: bold; border-radius: 5px;">汽车</span>
+          <a href="/tech" class="btn btn-primary">科技</a>
+          <a href="/fina" class="btn btn-primary">财经</a>
+        </div>
+        {% elif table_name == '科技' %}
+        <div class="buttons">
+          <a href="/news" class="btn btn-primary">新闻</a>
+          <a href="/yule" class="btn btn-primary">娱乐</a>
+          <a href="/car" class="btn btn-primary">汽车</a>
+          <span class="label" style="background-color: red; color: white; padding: 5px 10px; font-weight: bold; border-radius: 5px;">科技</span>
+          <a href="/fina" class="btn btn-primary">财经</a>
+        </div>
+        {% elif table_name == '财经' %}
+        <div class="buttons">
+          <a href="/news" class="btn btn-primary">新闻</a>
+          <a href="/yule" class="btn btn-primary">娱乐</a>
+          <a href="/car" class="btn btn-primary">汽车</a>
+          <a href="/tech" class="btn btn-primary">科技</a>
+          <span class="label" style="background-color: red; color: white; padding: 5px 10px; font-weight: bold; border-radius: 5px;">财经</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <nav class="nav-menu float-right d-none d-lg-block">
+        <ul>
+          <li class="active"><a href="/index">首页<i class="la la-angle-down"></i></a></li>
+          <li><a href="/data">数据爬虫</a></li>
+          <li><a href="/news">数据查阅</a></li>
+          <li><a href="/job_types">数据看板</a></li>
+          <li><a href="/export">数据挖掘</a></li>
+
+        </ul>
+      </nav><!-- .nav-menu -->
+
+    </div>
+  </header><!-- End Header -->
+
+<!-- ======= Our Team Section ======= -->
+<!--<section id="team" class="team">-->
+
+
+
+
+<!-- ======= Counts Section ======= -->
+<section class="counts section-bg">
+<!--    <div class="container">-->
+      <!-- 分页导航 -->
+      <div class="pagination">
+        <ul class="pagination-list" style="display: flex;">
+          {% if current_page > 1 %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?page={{ current_page - 1 }}">上一页</a></li>
+          {% endif %}
+
+          {% set start_page = current_page - 2 %}
+          {% set end_page = current_page + 2 %}
+          {% if start_page <= 2 %}
+            {% set start_page = 1 %}
+            {% set end_page = 5 if total_pages > 5 else total_pages %}
+          {% endif %}
+
+          {% if start_page > 2 %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?page=1">1</a></li>
+            {% if start_page > 3 %}
+              <li class="pagination-item" style="margin-right: 30px;"><span>...</span></li>
+            {% endif %}
+          {% endif %}
+
+          {% for page_num in range(start_page, end_page + 1) %}
+            {% if page_num == current_page %}
+              <li class="pagination-item active" style="margin-right: 30px;"><span>{{ page_num }}</span></li>
+            {% else %}
+              <li class="pagination-item" style="margin-right: 30px;"><a href="?page={{ page_num }}">{{ page_num }}</a></li>
+            {% endif %}
+          {% endfor %}
+
+          {% if end_page < total_pages - 1 %}
+            {% if end_page < total_pages - 2 %}
+              <li class="pagination-item" style="margin-right: 30px;"><span>...</span></li>
+            {% endif %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?page={{ total_pages }}">{{ total_pages }}</a></li>
+          {% endif %}
+
+          {% if current_page < total_pages %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?page={{ current_page + 1 }}">下一页</a></li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <!-- 数据列表 -->
+      <div class="grid-container">
+
+        {% set start_index = (current_page - 1) * 30 + 1 %}
+        {% for data in data_list[(current_page-1)*30:current_page*30] %}
+          {% set index = loop.index + start_index - 1 %}
+          <div class="grid-item">
+              <div class="item-container">
+                <div class="item-info">
+<!--                  <a href="{{ data[4] }}">-->
+                  <img src="{{ data[4] }}" height=120 width=240 alt="">
+<!--                  </a>-->
+                  <div class="info">
+                        <div class="index">索引:{{ index }} </div>
+                        <div class="label">栏目:{{ data[2] }} </div>
+                        <div class="area">ip:{{ data[9] }}</div>
+                  </div>
+                  <div class="info">
+                        <div class="read-num">阅读量:{{ data[5] }} </div>
+                        <div class="medie">媒体:{{ data[8] }}</div>
+                  </div>
+                  <div class="article-time">发布时间:{{ data[10] }}</div>
+                </div>
+                <div class="item-info">
+                    <a href="{{ data[3] }}">
+                      <div class="title" title="{{ data[6] }}">{{ data[6][:21] }}···</div>
+                    </a>
+                    <div class="article-text" title="{{ data[7] }}">{{ data[7][:60] }}···</div>
+                </div>
+              </div>
+          </div>
+        {% endfor %}
+      </div>
+      <!-- 分页导航 -->
+      <div class="pagination">
+        <ul class="pagination-list" style="display: flex;">
+          {% if current_page > 1 %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?page={{ current_page - 1 }}">上一页</a></li>
+          {% endif %}
+
+          {% set start_page = current_page - 2 %}
+          {% set end_page = current_page + 2 %}
+          {% if start_page <= 2 %}
+            {% set start_page = 1 %}
+            {% set end_page = 5 if total_pages > 5 else total_pages %}
+          {% endif %}
+
+          {% if start_page > 2 %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?page=1">1</a></li>
+            {% if start_page > 3 %}
+              <li class="pagination-item" style="margin-right: 30px;"><span>...</span></li>
+            {% endif %}
+          {% endif %}
+
+          {% for page_num in range(start_page, end_page + 1) %}
+            {% if page_num == current_page %}
+              <li class="pagination-item active" style="margin-right: 30px;"><span>{{ page_num }}</span></li>
+            {% else %}
+              <li class="pagination-item" style="margin-right: 30px;"><a href="?page={{ page_num }}">{{ page_num }}</a></li>
+            {% endif %}
+          {% endfor %}
+
+          {% if end_page < total_pages - 1 %}
+            {% if end_page < total_pages - 2 %}
+              <li class="pagination-item" style="margin-right: 30px;"><span>...</span></li>
+            {% endif %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?page={{ total_pages }}">{{ total_pages }}</a></li>
+          {% endif %}
+
+          {% if current_page < total_pages %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?page={{ current_page + 1 }}">下一页</a></li>
+          {% endif %}
+        </ul>
+      </div>
+
+<!--    </div>-->
+  </section><!-- End Counts Section -->
+
+</section><!-- End Our Team Section -->
+
+
+  <a href="#" class="back-to-top"><i class="icofont-simple-up"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="static/assets/vendor/jquery/jquery.min.js"></script>
+  <script src="static/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="static/assets/vendor/jquery.easing/jquery.easing.min.js"></script>
+  <script src="static/assets/vendor/php-email-form/validate.js"></script>
+  <script src="static/assets/vendor/jquery-sticky/jquery.sticky.js"></script>
+  <script src="static/assets/vendor/venobox/venobox.min.js"></script>
+  <script src="static/assets/vendor/waypoints/jquery.waypoints.min.js"></script>
+  <script src="static/assets/vendor/counterup/counterup.min.js"></script>
+  <script src="static/assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="static/assets/vendor/aos/aos.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="static/assets/js/main.js"></script>
+
+</body>
+
+</html>

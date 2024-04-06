@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>导出数据</title>
+  <link rel="stylesheet" href="../static/style.css">
+  <style>
+    .page-container {
+      max-width: 100%;
+      margin: 0 auto;
+      margin-top: 100px;
+      padding: 20px; /* 添加padding */
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .logo {
+      position: fixed;
+      top: 17px;
+      right: 450px;
+      left: auto;
+      bottom: 0;
+    }
+    .nav-menu {
+      position: fixed;
+      top: 35px;
+      right: 30px;
+      left: auto;
+      bottom: 0;
+    }
+    .container {
+      max-width: 100%;
+      margin: 0 auto 0;
+      padding: 20px; /* 添加padding */
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+    #header {
+      position: fixed;
+      top: 0;
+      left: 18%;
+      width: 100%;
+      background-color: white;
+      z-index: 9999;
+    }
+    .main-content {
+      flex: 1;
+      margin-left: 260px; /* 调整为侧边栏宽度+20px，给侧边栏留出空间 */
+      margin-right: -10px;
+      overflow-x: auto; /* 添加水平滚动 */
+    }
+    .select-input {
+      height: 30px;
+      width: 220px;
+      margin-bottom: 10px;
+    }
+    .sidebar {
+      width: 235px;
+      background-color: #f2f2f2;
+      padding: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+    }
+    .title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .main-content table {
+      width: 100%;
+      background-color: #f2f2f2;
+    }
+
+    .main-content th,
+    .main-content td {
+      border: 1px solid #ccc;
+      padding: 5px;
+      text-align: left;
+    }
+    table {
+      width: 200%;
+      background-color: #f2f2f2;
+    }
+
+    th {
+      border: 1px solid #ccc;
+      padding: 5px;
+      background-color: #ccc;
+      text-align: center;
+    }
+
+    td {
+      border: 1px solid #ccc;
+      padding: 5px;
+      text-align: left;
+      color: #333;
+    }
+  </style>
+
+</head>
+<body>
+  <!-- ======= Header ======= -->
+  <header id="header">
+    <div class="container">
+      <div class="logo float-left">
+        <h1 class="text-light"><a href="/index"></a></h1>
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <a href="/index"><img src="static/assets/img/logo.jpg" alt="" class="img-fluid"></a>
+      </div>
+      <nav class="nav-menu float-right d-none d-lg-block">
+        <ul>
+          <li class="active"><a href="/index">首页<i class="la la-angle-down"></i></a></li>
+          <li><a href="/human_resources">查询数据</a></li>
+          <li><a href="/job_types">数据看板</a></li>
+          <li><a href="/add">导入数据</a></li>
+          <li><a href="/export">导出数据</a></li>
+        </ul>
+      </nav><!-- .nav-menu -->
+    </div>
+  </header><!-- End Header -->
+
+<div class="page-container">
+  <div class="sidebar">
+    <h3>导出数据</h3>
+    <div class="title">选择数据表</div>
+    <select id="table-select" style="width: 180px; height: 30px;">
+      <option value="human_resources">人力资源</option>
+      <option value="marketing">营销场景</option>
+      <option value="my_table">my_table</option>
+    </select>
+    <button id="submit-button" style="height: 30px;">查看</button>
+    <br>
+    <br>
+    <div class="tip-content">
+      <span>选择item字段</span>
+    </div>
+    <span class="select-input">
+      <input id="item-input" class="select-input" type="text">
+    </span>
+    <br>
+    <div class="tip-content">
+      <span>选择scene字段</span>
+    </div>
+    <span class="select-input">
+      <input id="scene-input" class="select-input" type="text">
+    </span>
+    <br>
+    <div class="tip-content">
+      <span>导出数量</span>
+    </div>
+    <span class="select-input">
+      <input id="quantity-input" class="select-input" type="number">
+    </span>
+    <br>
+    <br>
+    <button id="Upload" style="height: 30px; width: 228px">导出</button>
+
+  </div>
+
+  <div class="main-content">
+    <table id="data-table">
+      <thead>
+        <tr>
+          <th>Classification</th>
+          <th>Item</th>
+          <th>Scene</th>
+        </tr>
+      </thead>
+      <tbody id="data-table-body">
+        <!-- 这里将展示数据 -->
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+  // 按钮点击事件
+  document.getElementById('submit-button').addEventListener('click', function() {
+    var tableSelect = document.getElementById('table-select');
+    var tableName = tableSelect.value;
+    var item = document.getElementById('item-input').value;
+    var scene = document.getElementById('scene-input').value;
+    var quantity = document.getElementById('quantity-input').value;
+
+    // 发送POST请求到后端
+    fetch('/get_data1', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        table_name: tableName
+      })
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(data) {
+      var tableBody = document.getElementById('data-table-body');
+      tableBody.innerHTML = ''; // 清空表格内容
+
+      for (var i = 0; i < data.length; i++) {
+        var rowData = data[i];
+        var rowElement = document.createElement('tr');
+
+        for (var j = 0; j < rowData.length; j++) {
+          var cellData = rowData[j];
+          var cellElement = document.createElement('td');
+          cellElement.textContent = cellData;
+          rowElement.appendChild(cellElement);
+        }
+
+        tableBody.appendChild(rowElement);
+      }
+    })
+    .catch(function(error) {
+      console.error('Error:', error);
+    });
+  });
+
+  // 导出按钮点击事件
+  document.getElementById('Upload').addEventListener('click', function() {
+    var tableSelect = document.getElementById('table-select');
+    var tableName = tableSelect.value;
+    var item = document.getElementById('item-input').value;
+    var scene = document.getElementById('scene-input').value;
+    var quantity = document.getElementById('quantity-input').value;
+
+    // 发送POST请求到后端
+    fetch('/export_data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        table_name: tableName,
+        item: item,
+        scene: scene,
+        quantity: quantity
+      })
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    // .then(function(data) {
+    //   var link = document.createElement('a');
+    //   link.href = data;
+    //   link.download = 'exported_data.csv';  // 修改文件名和格式
+    //   link.click();
+    // })
+    .catch(function(error) {
+      console.error('Error:', error);
+    });
+  });
+</script>
+</body>
+</html>

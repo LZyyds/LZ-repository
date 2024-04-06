@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <script src="static/assets/js/echarts.min.js"></script>
+
+  <title>信息分布图</title>
+  <meta content="" name="descriptison">
+  <meta content="" name="keywords">
+
+  <!-- Vendor CSS Files -->
+  <link href="static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/icofont/icofont.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/animate.css/animate.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/venobox/venobox.css" rel="stylesheet">
+  <link href="static/assets/vendor/aos/aos.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="static/assets/css/style.css" rel="stylesheet">
+
+  <style>
+    .chart-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-gap: 20px;
+      margin-top: 20px;
+    }
+
+    .chart {
+      width: 95%;
+      height: 300px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header">
+    <div class="container">
+      <div class="logo float-left">
+<!--        <h1 class="text-light"><a href="https://github.com/LZyyds/LZ-repository/"></a></h1>-->
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <a href="https://github.com/LZyyds/LZ-repository/"><img src="static/assets/img/logo.jpg" alt="" class="img-fluid"></a>
+      </div>
+      <nav class="nav-menu float-right d-none d-lg-block">
+        <ul>
+          <li class="active"><a href="/index">首页<i class="la la-angle-down"></i></a></li>
+          <li><a href="/news">数据爬虫</a></li>
+          <li><a href="/news">数据查阅</a></li>
+          <li><a href="/job_types">数据看板</a></li>
+          <li><a href="/export">数据挖掘</a></li>
+
+        </ul>
+      </nav><!-- .nav-menu -->
+    </div>
+  </header><!-- End Header -->
+
+  <section id="team" class="team">
+    <div class="container" style="width: 100%; height: 50%;">
+<!--      <div class="section-title">-->
+<!--        <h2>数据看板</h2>-->
+<!--      </div>-->
+
+      <!-- ======= Counts Section ======= -->
+      <section class="counts section-bg">
+        <div class="container chart-container" style="width: 110%; height: 100%;">
+          <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+          <div id="main1" class="chart" style="width: 500px; height: 500px;"></div>
+          <div id="main2" class="chart" style="width: 600px; height: 500px;"></div>
+          <div id="main3" class="chart" style="width: 500px; height: 400px;"></div>
+          <div id="main4" class="chart" style="width: 600px; height: 450px;"></div>
+        </div>
+      </section><!-- End Counts Section -->
+    </div>
+  </section><!-- End Our Team Section -->
+
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script type="text/javascript">
+    var chartData1 = JSON.parse('{{ chart_data1 | tojson | safe }}');
+    var chartData2 = JSON.parse('{{ chart_data2 | tojson | safe }}');
+    var chartData3 = JSON.parse('{{ chart_data3 | tojson | safe }}');
+    var chartData4 = JSON.parse('{{ chart_data4 | tojson | safe }}');
+
+    var colors = ['#F8B195', '#F67280', '#C06C84', '#6C5B7B', '#355C7D', '#F8B195', '#F67280', '#C06C84', '#6C5B7B', '#355C7D'];
+
+
+    var dom1 = document.getElementById('main1');
+    var myChart1 = echarts.init(dom1, null, {
+      renderer: 'canvas',
+      useDirtyRect: false
+    });
+
+    var dom2 = document.getElementById('main2');
+    var myChart2 = echarts.init(dom2, null, {
+      renderer: 'canvas',
+      useDirtyRect: false
+    });
+
+    var dom3 = document.getElementById('main3');
+    var myChart3 = echarts.init(dom3, null, {
+      renderer: 'canvas',
+      useDirtyRect: false
+    });
+
+    var dom4 = document.getElementById('main4');
+    var myChart4 = echarts.init(dom4, null, {
+      renderer: 'canvas',
+      useDirtyRect: false
+    });
+
+    var option1 = {
+      legend: {
+        top: 'bottom'
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          mark: { show: true },
+          dataView: { show: true, readOnly: false },
+          restore: { show: true },
+          saveAsImage: { show: true }
+        }
+      },
+      series: [
+        {
+          name: 'Nightingale Chart 1',
+          type: 'pie',
+          radius: [20, '45%'],
+          center: ['50%', '50%'],
+          roseType: 'area',
+          itemStyle: {
+            borderRadius: 8
+          },
+          data: chartData1,
+          label: {
+            formatter: '{b} ({d}%)'  // 显示名称和百分比
+          }
+        }
+      ]
+    };
+
+    // options2的玫瑰图
+    // var option2 = {
+    //   legend: {
+    //     top: 'bottom'
+    //   },
+    //   toolbox: {
+    //     show: true,
+    //     feature: {
+    //       mark: { show: true },
+    //       dataView: { show: true, readOnly: false },
+    //       restore: { show: true },
+    //       saveAsImage: { show: true }
+    //     }
+    //   },
+    //   series: [
+    //     {
+    //       name: 'Nightingale Chart 2',
+    //       type: 'pie',
+    //       radius: [20, '45%'],
+    //       center: ['50%', '50%'],
+    //       roseType: 'area',
+    //       itemStyle: {
+    //         borderRadius: 8
+    //       },
+    //       data: chartData2,
+    //       label: {
+    //         formatter: '{b} ({d}%)'  // 显示名称和百分比
+    //       }
+    //     }
+    //   ]
+    // };
+
+    var option2 = {
+      xAxis: {
+        data: chartData2.map(function(item) {
+          return item.name;
+        }),
+        axisLabel: {
+          interval: 0, // 强制显示所有标签
+          rotate: 30, // 倾斜角度
+          formatter: '{value}' // 显示数据项名称
+        }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          formatter: '{value}' // 显示数据项的值
+        }
+      },
+      series: [
+        {
+          data: chartData2.map(function(item, index) {
+            return {
+              value: item.value,
+              itemStyle: {
+                color: colors[index % colors.length] // 使用颜色数组中对应索引的颜色值
+              }
+            };
+          }),
+          type: 'bar',
+          label: {
+            show: true,
+            position: 'top',
+            formatter: '{c}', // {c} 表示数据项的值
+          }
+        }
+      ]
+    };
+
+
+    var option3 = {
+    legend: {
+      top: 'bottom'
+    },
+    toolbox: {
+      show: true,
+      feature: {
+        mark: { show: true },
+        dataView: { show: true, readOnly: false },
+        restore: { show: true },
+        saveAsImage: { show: true }
+      }
+    },
+    series: [{
+      name: 'Nightingale Chart 2',
+      type: 'funnel',
+      width: '80%',
+      height: '80%',
+      top: '10%',
+      left: '10%',
+      label: {
+        show: true,
+        position: 'inside',
+        formatter: '{b}\n{c}'
+      },
+      data: chartData3
+      }]
+    };
+
+    var option4 = {
+      legend: {
+        top: 'bottom'
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          mark: { show: true },
+          dataView: { show: true, readOnly: false },
+          restore: { show: true },
+          saveAsImage: { show: true }
+        }
+      },
+      series: [
+        {
+          name: 'Nightingale Chart 4',
+          type: 'pie',
+          radius: [25, '70%'],
+          center: ['50%', '50%'],
+          roseType: 'area',
+          itemStyle: {
+            borderRadius: 8
+          },
+          data: chartData4,
+          label: {
+            formatter: '{b} ({d}%)'  // 显示名称和百分比
+          }
+        }
+      ]
+    };
+
+    if (option1 && typeof option1 === 'object') {
+      myChart1.setOption(option1);
+    }
+
+    if (option2 && typeof option2 === 'object') {
+      myChart2.setOption(option2);
+    }
+
+    if (option3 && typeof option3 === 'object') {
+      myChart3.setOption(option3);
+    }
+
+    if (option4 && typeof option4 === 'object') {
+      myChart4.setOption(option4);
+    }
+
+    window.addEventListener('resize', function() {
+      myChart1.resize();
+      myChart2.resize();
+      myChart3.resize();
+      myChart4.resize();
+    });
+  </script>
+
+</body>
+
+</html>
