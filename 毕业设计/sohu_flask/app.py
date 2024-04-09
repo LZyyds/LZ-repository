@@ -58,6 +58,11 @@ def home():
     return index()
 
 
+@app.route('/start_crawl')
+def start_crawl():
+    return render_template("start_crawl.html")
+
+
 def data_review(table_name):
     data_list = []
     # 连接数据库
@@ -534,7 +539,7 @@ def upload_data():
 
 @app.route('/add_table')
 def add_table():
-    return render_template('add_table.html')
+    return render_template('start_crawl.html')
 
 
 @app.route('/createTable', methods=['POST'])
