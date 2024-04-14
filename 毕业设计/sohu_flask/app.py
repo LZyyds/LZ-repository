@@ -1,4 +1,7 @@
+import io
+
 from flask import Flask, render_template, request, g, Response, jsonify
+from crawl_sohu import SohuSpider
 import pymysql
 import matplotlib.pyplot as plt
 import re
@@ -79,8 +82,6 @@ def data_review(table_name):
     total_pages = len(data_list) // 30  # 计算总页数
 
     return data_list, current_page, total_pages
-
-
 @app.route('/news')
 def news_table():
     table_name = '新闻'
@@ -124,6 +125,107 @@ def fina_table():
     return render_template("data_view.html", data_list=data_list, table_name=table_name,
                            current_page=current_page, total_pages=total_pages)
 
+@app.route('/table_info', methods=['POST'])
+def table_info():
+    response = request.get_json()
+    table_name = response.get('table_name')
+    conn, cursor = connect_db()
+    sql = f"select * from `{table_name}`;"
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    close_db(conn, cursor)
+    # 将数据转换为 DataFrame
+    df = pd.DataFrame(data, columns=[desc[0] for desc in cursor.description])
+    df = df.replace('', pd.NA).replace('\t', pd.NA)
+    buffer = io.StringIO()
+    df.info(buf=buffer, verbose=True)
+    df_info_str = buffer.getvalue().replace("<class 'pandas.core.frame.DataFrame'>\n", '')
+
+    return jsonify({'success': True, 'msg': df_info_str})
+
+@app.route('/drop_null', methods=['POST'])
+def drop_null():
+    response = request.get_json()
+    table_name = response.get('table_name')
+    conn, cursor = connect_db()
+    count_sql = f"SELECT COUNT(*) FROM `{table_name}` WHERE `正文` = '\t';"
+    cursor.execute(count_sql)
+    count = cursor.fetchone()[0]
+    msg = f'{table_name} 表中有 {count} 条无效数据\n已删除···'
+    delete_sql = f"DELETE FROM `{table_name}` WHERE `正文` = '\t';"
+    cursor.execute(delete_sql)
+    # 提交更改
+    cursor.connection.commit()
+    close_db(conn, cursor)
+
+    return jsonify({'success': True, 'msg': msg})
+
+@app.route('/crawl_news', methods=['POST'])
+def crawl_news():
+    article_type = '新闻'
+    url_dict = {
+        'https://www.sohu.com/xchannel/tag?key=%E6%96%B0%E9%97%BB-%E6%97%B6%E6%94%BF': [article_type, '时政'],
+        'https://www.sohu.com/xchannel/tag?key=%E6%96%B0%E9%97%BB-%E5%9B%BD%E9%99%85': [article_type, '国际'],
+        'https://www.sohu.com/xchannel/tag?key=%E6%96%B0%E9%97%BB-%E8%B4%A2%E7%BB%8F': [article_type, '财经'],
+    }
+    spider = SohuSpider(url_dict)
+    spider.spider_main()
+    return jsonify({'success': True, 'msg': spider.console})
+
+@app.route('/crawl_yule', methods=['POST'])
+def crawl_yule():
+    article_type = '娱乐'
+    url_dict = {
+        'https://www.sohu.com/xchannel/tag?key=%E5%A8%B1%E4%B9%90-%E6%98%8E%E6%98%9F': [article_type, '明星'],
+        'https://www.sohu.com/xchannel/tag?key=%E5%A8%B1%E4%B9%90-%E5%85%AB%E5%8D%A6': [article_type, '八卦'],
+        'https://www.sohu.com/xchannel/tag?key=%E5%A8%B1%E4%B9%90-%E5%BD%B1%E8%A7%86%E9%9F%B3%E4%B9%90': [article_type,
+                                                                                                          '影视音乐'],
+        'https://www.sohu.com/xchannel/tag?key=%E5%A8%B1%E4%B9%90-%E7%BD%91%E7%BB%9C%E7%BA%A2%E4%BA%BA': [article_type,
+                                                                                                          '网络红人'],
+    }
+    spider = SohuSpider(url_dict)
+    spider.spider_main()
+    return jsonify({'success': True, 'msg': spider.console})
+
+@app.route('/crawl_car', methods=['POST'])
+def crawl_car():
+    article_type = '汽车'
+    url_dict = {
+        'https://www.sohu.com/xchannel/TURBd01EQTNNekV3': [article_type, '新车快报'],
+        'https://www.sohu.com/xchannel/TURBd01EQTNNekV4': [article_type, '买车必看'],
+        'https://www.sohu.com/xchannel/TURBd01EQTNNekV5': [article_type, '新能源'],
+        'https://www.sohu.com/xchannel/TURBd01EQTNNekV6': [article_type, '车市行情'],
+    }
+    spider = SohuSpider(url_dict)
+    spider.spider_main()
+    return jsonify({'success': True, 'msg': spider.console})
+
+@app.route('/crawl_tech', methods=['POST'])
+def crawl_tech():
+    article_type = '科技'
+    url_dict = {
+        'https://www.sohu.com/xchannel/tag?key=%E7%A7%91%E6%8A%80-%E9%80%9A%E8%AE%AF': [article_type, '通讯'],
+        'https://www.sohu.com/xchannel/tag?key=%E7%A7%91%E6%8A%80-%E6%95%B0%E7%A0%81': [article_type, '数码'],
+        'https://www.sohu.com/xchannel/tag?key=%E7%A7%91%E6%8A%80-%E6%99%BA%E8%83%BD%E7%A1%AC%E4%BB%B6': [article_type,
+                                                                                                          '智能硬件'],
+    }
+    spider = SohuSpider(url_dict)
+    spider.spider_main()
+    return jsonify({'success': True, 'msg': spider.console})
+
+@app.route('/crawl_fina', methods=['POST'])
+def crawl_fina():
+    article_type = '财经'
+    url_dict = {
+        'https://www.sohu.com/xchannel/tag?key=%E8%B4%A2%E7%BB%8F-%E7%BB%8F%E6%B5%8E%E8%A7%A3%E7%A0%81': [article_type,
+                                                                                                          '经济解码'],
+        'https://www.sohu.com/xchannel/tag?key=%E8%B4%A2%E7%BB%8F-%E8%82%A1%E7%A5%A8': [article_type, '股票'],
+        'https://www.sohu.com/xchannel/tag?key=%E8%B4%A2%E7%BB%8F-%E5%9F%BA%E9%87%91': [article_type, '基金'],
+        'https://www.sohu.com/xchannel/tag?key=%E8%B4%A2%E7%BB%8F-IPO': [article_type, 'IPO'],
+    }
+    spider = SohuSpider(url_dict)
+    spider.spider_main()
+    return jsonify({'success': True, 'msg': spider.console})
 
 @app.route('/job_types')
 def job_types():

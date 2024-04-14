@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>数据查询系统</title>
+  <title>数据爬虫系统</title>
   <meta content="" name="descriptison">
   <meta content="" name="keywords">
 
@@ -195,16 +195,13 @@
 
       <!-- 数据列表 -->
       <div class="grid-container">
-
         {% set start_index = (current_page - 1) * 30 + 1 %}
         {% for data in data_list[(current_page-1)*30:current_page*30] %}
           {% set index = loop.index + start_index - 1 %}
           <div class="grid-item">
               <div class="item-container">
                 <div class="item-info">
-<!--                  <a href="{{ data[4] }}">-->
                   <img src="{{ data[4] }}" height=120 width=240 alt="">
-<!--                  </a>-->
                   <div class="info">
                         <div class="index">索引:{{ index }} </div>
                         <div class="label">栏目:{{ data[2] }} </div>

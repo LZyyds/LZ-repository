@@ -26,14 +26,12 @@ import os
 """
 爬取搜狐滑动类型文章——通用
 """
-
-
 class SohuSpider:
     def __init__(self, url_dict):
         self.url_dict = url_dict
-
     # 爬取失败的列表
     failed_links = []
+    console = ''
     # 保存数据的文件夹路径
     save_data_dir = r'D:\桌面\毕业设计\spider_data'
     # 数据库连接信息
@@ -60,8 +58,7 @@ class SohuSpider:
 
         return driver
 
-    @staticmethod
-    def get_list_data(url, inner_lable, driver):
+    def get_list_data(self, url, inner_lable, driver):
         """
         获取目标站点列表页动态数据
         :param url: 不同栏目站点信息
@@ -69,15 +66,14 @@ class SohuSpider:
         :param driver: 浏览器驱动
         :return: 链接列表、主图列表、阅读量列表
         """
-        # 访问目标url
-        driver.get(url)
         try:
+            driver.get(url)  # 访问目标url
             # 等待网页页面加载
-            WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located(
-                    (By.CSS_SELECTOR, '.TPLImageTextFeedItem')))
+            WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.TPLImageTextFeedItem')))
         except:
-            print(f"【{inner_lable}】 url 访问超时···")
+            msg = f"【{inner_lable}】 url 访问超时···"
+            print(msg)
+            self.console += msg + '\n'
             return [], [], []
         # 模拟滚动操作
         actions = ActionChains(driver)
@@ -93,10 +89,8 @@ class SohuSpider:
             # 拖到页面底部则跳出循环
             if current_position == previous_position:
                 break
-
         # 使用BeautifulSoup解析网页源代码
         dom = BeautifulSoup(driver.page_source, 'lxml')
-
         link_list = []
         main_pic_list = []
         read_num_list = []
@@ -116,11 +110,9 @@ class SohuSpider:
 
         read_num_list = [int(i.replace('万', '').replace('+', '').replace('.', '').strip() + '000')
                          if '万' in i else int(i) for i in read_num_list]
-
-        print(f"【{inner_lable}】 一共有 {len(link_list)} 条文章链接")
-        # print(link_list)
-        # print(main_pic_list)
-        # print(read_num_list)
+        msg = f"【{inner_lable}】 一共有 {len(link_list)} 条文章链接"
+        print(msg)
+        self.console += msg + '\n'
 
         return link_list, main_pic_list, read_num_list
 
@@ -143,13 +135,11 @@ class SohuSpider:
                               "original-title" not in p.get('data-role', [])]
         else:
             paragraph_list = []
-
         # 正文处理空行格式
         text = "\n".join(paragraph_list)
-        text = '\t' + text.replace("\n\n", "\n").replace("\n\n\n", "\n").replace("\n", "\n\t").replace("\n\t\n\t",
-                                                                                                       "\n").strip()
+        text = '\t' + text.replace("\n\n", "\n").replace(
+                "\n\n\n", "\n").replace("\n", "\n\t").replace("\n\t\n\t", "\n").strip()
         text = text.split('\n\t推荐阅读')[0].split('\n\t责任编辑')[0].replace('返回搜狐，查看更多', '')
-        # text = re.sub(r'原标题.*?\n\t', '', text, count=1)
 
         # 标题
         title_element = soup.select_one(".text-title > h1," "body > div.content.area > div.article-box.l > h3")
@@ -195,7 +185,9 @@ class SohuSpider:
             text, title, media, article_time, area = self._get_web_data(link)
             return text, title, media, article_time, area
         except Exception as e:
-            print(f"链接:{link} 异常，三次重试次数用尽。错误信息:{str(e)}。")
+            msg = f"链接:{link} 异常，三次重试次数用尽。错误信息:{str(e)}。"
+            print(msg)
+            self.console += msg + '\n'
             self.failed_links.append(link)
             return '', '', '', '', ''
 
@@ -214,33 +206,18 @@ class SohuSpider:
 
     def mult_process(self, all_link_list, all_main_pic_list, all_read_num_list, outer_lable_list,
                      inner_lable_list):
-        """
-        多线程处理函数、并保存数据至excel
-        :param all_link_list: 所有文章链接列表
-        :param all_main_pic_list: 所有主图链接列表
-        :param all_read_num_list: 所有阅读数列表
-        :param outer_lable_list: 所有外标签（即类别）列表
-        :param inner_lable_list: 所有文内标签（即栏目）列表
-        :return: 总数据表
-        """
-        # all_data = pd.DataFrame(columns=['类别', '栏目', '标题', '链接', '媒体', '正文', '发布时间', '发布省份'])
         with ThreadPoolExecutor() as executor:
             pbar = tqdm(total=len(all_link_list), desc=f"{outer_lable_list[0]} 爬取详情页进度")
-
             def get_web_data_with_progress(link):
                 result = self.get_web_data(link)
                 # 更新进度条
                 pbar.update(1)
                 return result
-
             results = list(executor.map(get_web_data_with_progress, all_link_list))
-
             data = pd.DataFrame(results, columns=['正文', '标题', '媒体', '发布时间', '发布省份'])
             all_data = pd.DataFrame({
-                '类别': outer_lable_list,
-                '栏目': inner_lable_list,
-                '链接': all_link_list,
-                '主图链接': all_main_pic_list,
+                '类别': outer_lable_list, '栏目': inner_lable_list,
+                '链接': all_link_list, '主图链接': all_main_pic_list,
                 '阅读数量': all_read_num_list,
                 '标题': data['标题'],
                 '正文': data['正文'],
@@ -248,15 +225,13 @@ class SohuSpider:
                 '发布省份': data['发布省份'],
                 '发布时间': data['发布时间']
             })
-
         self.process_datetime_column(all_data, '发布时间')
         # print(all_data.tail(5))
         print(f'本次爬取 【{outer_lable_list[0]}】 文章数据中有%d条重复数据' % all_data.duplicated().sum())
 
         return all_data
 
-    @staticmethod
-    def save_to_excel(all_data, save_data_dir, outer_label):
+    def save_to_excel(self, all_data, save_data_dir, outer_label):
         file_path = rf'{save_data_dir}\{outer_label}.xlsx'
         if os.path.exists(file_path):
             # 读取已存在的Excel文件
@@ -264,9 +239,12 @@ class SohuSpider:
             # 将新数据追加到已有数据后面
             excel_all_data = pd.concat([existing_data, all_data], ignore_index=True)
             duplicat_num = all_data.duplicated().sum()
-            print(f'合并后excel表中有%d条重复数据' % duplicat_num)
+            msg = f'合并后excel表中有{duplicat_num}条重复数据'
+            print(msg)
+            self.console += msg + '\n'
             if duplicat_num != 0:
                 print('执行去重操作···')
+                self.console += '执行去重操作···' + '\n'
                 # 删除重复数据
                 excel_all_data.drop_duplicates(inplace=True)
             # 将合并后的数据写入Excel文件
@@ -321,14 +299,15 @@ class SohuSpider:
                 cursor.execute(insert_statement, data)
                 conn.commit()
             except Exception as e:
-                print(f"插入数据{data[2]}时发生异常：{e}.跳过当前行继续插入下一行数据。")
+                msg = f"插入数据{data[2]}时发生异常：{e}.跳过当前行继续插入下一行数据。"
+                print(msg)
+                self.console += msg + '\n'
                 conn.rollback()
         # 关闭游标和连接
         cursor.close()
         conn.close()
 
-    @staticmethod
-    def is_new_link(data_dict):
+    def is_new_link(self, data_dict):
         """
         根据历史爬过记录判断并筛选出新（未爬过）的详情页链接
         :param data_dict: 动态获取列表页的数据字典
@@ -338,15 +317,14 @@ class SohuSpider:
         if not os.path.exists('crawled_links.json'):
             with open('crawled_links.json', 'w', encoding='utf-8') as f:
                 json.dump([], f, ensure_ascii=False, indent=4)
-
         # 读取crawled_links.json文件内容
         with open('crawled_links.json', 'r', encoding='utf-8') as f:
             crawled_links = json.load(f)
-
         # 通过历史记录对比，拿到本次爬取新文章链接列表
         new_links = [link for link in data_dict.keys() if link not in crawled_links]
-        print(f" 本次爬取 {len(data_dict)} 条文章链接中，有 {len(new_links)} 条新链接···")
-
+        msg = f" 本次爬取 {len(data_dict)} 条文章链接中，有 {len(new_links)} 条新链接···"
+        print(msg)
+        self.console += msg + '\n'
         # 追加新链接到历史爬取json文件
         if new_links:
             with open('crawled_links.json', 'w', encoding='utf-8') as f:
@@ -385,13 +363,15 @@ class SohuSpider:
         cost_time = end_time - start_time
         # 通过强转字符串的方式取外标签的值，即文章类别
         outer_label = str(self.url_dict).split("',")[0].split("['")[-1]
-        print(f'selenium爬取【{outer_label}】目录页一共花了{cost_time.total_seconds()}秒')
+        msg = f'selenium爬取【{outer_label}】目录页一共花了{cost_time.total_seconds()}秒'
+        print(msg)
+        self.console += msg + '\n'
         # 退出chromedriver
         driver.quit()
 
         new_links = self.is_new_link(data_dict)
 
-        # 追加新的链接到JSON文件中
+        # 如果有新链接
         if new_links:
             # 获取新链接对应的其他值
             new_main_pic_list = [data_dict[link]['main_pic'] for link in new_links]
@@ -403,12 +383,27 @@ class SohuSpider:
             all_data = self.mult_process(new_links, new_main_pic_list, new_read_num_list,
                                          outer_lable_list, inner_lable_list)
 
-            # 保存到excel表中
-            self.save_to_excel(all_data, self.save_data_dir, outer_label)
+            try:
+                # 保存到excel表中
+                self.save_to_excel(all_data, self.save_data_dir, outer_label)
+                msg = f"数据已写入 Excel表"
+                print(msg)
+                self.console += msg + '\n'
+            except Exception as e:
+                msg = f"保存数据到 Excel 失败"
+                print(f"保存数据到 Excel 失败，异常原因：{str(e)}")
+                self.console += msg + '\n'
             # 数据库的表名
             table_name = outer_label
             # 保存到MySQL的函数
             self.save_to_mysql(all_data, table_name)
-            print(f"【{outer_label}】爬取失败的文章链接列表: ", self.failed_links)
+            msg = f"数据已写入 MySQL"
+            print(msg)
+            self.console += msg + '\n'
+            msg = f"【{outer_label}】爬取失败的文章链接列表: "
+            print(msg, self.failed_links)
+            self.console += msg + str(self.failed_links)
         else:
-            print(f"本次爬取【{outer_label}】目录页无新数据产生···")
+            msg = f"本次爬取【{outer_label}】目录页无新数据产生···"
+            print(msg)
+            self.console += msg + '\n'
