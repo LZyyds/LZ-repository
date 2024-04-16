@@ -1,7 +1,7 @@
-笔记本
+# 笔记本
 
 
-Git常用操作：
+## Git常用操作：
 1、先将远程仓库clone到本地：在本地目标文件夹打开终端/在终端cd到目标文件夹，执行git clone “远程的ssh/https地址”
 
 2、在开发工具pycharm的 ‘File’ —》‘Open’ 中打开刚克隆的项目文件
@@ -28,71 +28,72 @@ Git常用操作：
 ￼
 
 
-Mac快捷键：
+## Mac快捷键：
 - [ ] command+空格：聚焦搜索
 - [ ] command+shift+g：通过路径打开目标所在文件夹
 - [ ] command+shift+4/5:高级截图
 
-
-1、全局代理：
+## 代理设置
+### 1、全局代理：
 Wi-Fi —》网络偏好设置 —〉高级 —》 代理 —〉网页代理/安全网络代理 —> 配置域名和端口
-2、Google 网页插件（仅Google浏览器代理）：
+### 2、Google 网页插件（仅Google浏览器代理）：
 插件商店 —》安装proxy switchyomega插件 —> 配置域名和端口 —>选择打开模式
-3、python终端：
+### 3、python终端：
 Terminal —》export http_proxy=http://px-local.sosobtc.com:xxxx —> pip install xxx
 
 pip清华镜像源：https://pypi.tuna.tsinghua.edu.cn/simple
 
 
-Scrapy：
+## Scrapy：
 1、cd 到目标文件夹，如pycharmproject下
 2、scrapy startproject 项目名
 3、cd 进入项目名文件夹，scrapy genspider 爬虫名 起始url地址
 
-Scrapy在pycharm的调试实现：
+## Scrapy在pycharm的调试实现：
 调试设置
 打开pycharm工程调试配置界面（Run -> Edit Configurations）。
 
-1选择工程。选择调试工程 xxx_spider，官方文档提供的示例工程。
+### 1、选择工程。
+选择调试工程 xxx_spider，官方文档提供的示例工程。
 设置执行脚本（Script）。设置为 H:\Python\Python36\Lib\site-packages\scrapy\cmdline.py， cmdline.py 是 scrapy 提供的命令行调用脚本，此处将启动脚本设置为 cmdline.py，将需要调试的工程作为参数传递给此脚本。
 （Mac版的 cmdline.py 路径为/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/scrapy/cmdline.py）
 
-2设置执行脚本参数（Script parameters）。设置为 crawl ’xxx‘，参数命令参照官方文档提供的爬虫执行命令：scrapy crawl ’xxx‘，与之不同的是设置参数时不包含 scrapy。（’xxx‘为spider的唯一name）
+### 2、设置执行脚本参数（Script parameters）。
+设置为 crawl ’xxx‘，参数命令参照官方文档提供的爬虫执行命令：scrapy crawl ’xxx‘，与之不同的是设置参数时不包含 scrapy。（’xxx‘为spider的唯一name）
 
-3设置工作目录（Work Directory）。设置为工程根目录/Users/colink/PycharmProjects/news-flash，根目录下包含爬虫配置文件 scrapy.cfg。
+### 3、设置工作目录（Work Directory）。
+设置为工程根目录/Users/colink/PycharmProjects/news-flash，根目录下包含爬虫配置文件 scrapy.cfg。
 ￼
 
-pycharm操作mongodb：http://t.csdnimg.cn/SeJGJ
+### pycharm操作mongodb：http://t.csdnimg.cn/SeJGJ
 mongodb命令大全：http://t.csdnimg.cn/gWuPq
-
 mongodb待优化：http://t.csdnimg.cn/mKZ8O
 查看端口命令：  lsof -i:27017
 * 进入mongodb：mongod --dbpath /usr/local/mongodb/data > 终端输入mongo
 * 退出mongodb：> use admin > db.shutdownServer({force : true})
 
 
-
-Redis安装：http://t.csdnimg.cn/dLi6C
+### Redis安装：http://t.csdnimg.cn/dLi6C
 To start redis now and restart at login:
   brew services start redis
 Or, if you don't want/need a background service you can just run:
   /opt/homebrew/opt/redis/bin/redis-server /opt/homebrew/etc/redis.conf
 ￼
 
-Scrapy-redis项目：http://t.csdnimg.cn/kiQAG
+## Scrapy-redis项目：http://t.csdnimg.cn/kiQAG
 
-设计模式 https://refactoringguru.cn/design-patterns
+## 设计模式 https://refactoringguru.cn/design-patterns
 
-浅拷贝（shallow copy）和深拷贝（deep copy）
+## 浅拷贝（shallow copy）和深拷贝（deep copy）
 在 Python 中，浅拷贝（shallow copy）和深拷贝（deep copy）是两种不同的拷贝方式，它们在处理对象的引用和嵌套对象时有所不同。
-1. 浅拷贝（Shallow Copy）：
+### 1. 浅拷贝（Shallow Copy）：
     * 浅拷贝创建一个新的对象，但是对于对象内部的引用类型（如列表、字典等），浅拷贝只会复制引用，而不会创建新的对象。
     * 也就是说，原始对象和浅拷贝对象共享相同的嵌套对象引用。
     * 对浅拷贝对象进行修改时，如果修改的是不可变对象（如数字、字符串等），则不会影响原始对象；但如果修改的是可变对象（如列表、字典等），则会影响原始对象和所有浅拷贝对象。
     * 可以使用切片操作 [:] 或者 list() 函数来创建列表的浅拷贝，使用 dict() 函数来创建字典的浅拷贝。
 				shallow_copy = original_list[:]  # 或者 shallow_copy = list(original_list)
 
-2. 深拷贝（Deep Copy）：
+### 2. 深拷贝（Deep Copy）：
     * 深拷贝创建一个新的对象，并且递归地复制原始对象内部的所有嵌套对象，创建完全独立的副本。
     * 深拷贝后的对象与原始对象之间没有任何引用共享，修改深拷贝对象不会影响原始对象。
     * 可以使用 copy 模块的 deepcopy() 函数来创建对象的深拷贝。
@@ -101,7 +102,7 @@ Scrapy-redis项目：http://t.csdnimg.cn/kiQAG
 当你修改 shallow_copy 时，实际上是在修改 original_list，因为它们引用相同的对象。同样地，修改 original_list 也会反映在 shallow_copy 上。
 修改 shallow_copy 的第一个元素不会影响 original_list，因为它们是不同的对象。但是，对于嵌套的可变对象（如列表 [2, 3]），浅拷贝仍然共享相同的引用，修改嵌套对象会影响到原始对象和浅拷贝对象。
 
-DNS (Domain Name System) 解析
+## DNS (Domain Name System) 解析
 是将域名转换为 IP 地址的过程。以下是 DNS 解析的流程,分点总结:
 1. 浏览器缓存查询
     * 浏览器首先检查自己的缓存中是否存在已解析过的域名对应的 IP 地址。
@@ -131,22 +132,22 @@ DNS (Domain Name System) 解析
     * 操作系统将 IP 地址返回给浏览器,浏览器使用该 IP 地址与 Web 服务器建立连接。
 
 
-asyncio异步编程：
+## asyncio异步编程：
 基础概念：http://t.csdnimg.cn/JANQr
 
-import asyncio
-
-async def task1():
-    print("执行 Task 1")
-    await asyncio.sleep(1)
-async def task2():
-    print("执行 Task 2")
-    await asyncio.sleep(1)
-async def main():
-    loop = asyncio.get_event_loop()
-    tasks = [loop.create_task(task1()), loop.create_task(task2())]
-    await asyncio.wait(tasks)
-	# 或者# result1, result2 = await asyncio.gather(task1(), task2())
+	import asyncio
+	
+	async def task1():
+	    print("执行 Task 1")
+	    await asyncio.sleep(1)
+	async def task2():
+	    print("执行 Task 2")
+	    await asyncio.sleep(1)
+	async def main():
+	    loop = asyncio.get_event_loop()
+	    tasks = [loop.create_task(task1()), loop.create_task(task2())]
+	    await asyncio.wait(tasks)
+		# 或者# result1, result2 = await asyncio.gather(task1(), task2())
 
 asyncio.run(main())
 
@@ -163,28 +164,28 @@ get_event_loop() 函数的作用是获取当前的事件循环,可以通过该�
 总的来说,get_event_loop() 提供了更底层的事件循环控制,允许我们手动管理协程的执行,而 gather() 则提供了一种更高层次的抽象,用于方便地并发执行多个协程任务。在大多数情况下,使用 gather() 函数可以更简洁地编写并发代码,而 get_event_loop() 则用于需要对事件循环进行更细粒度控制的场景。
 
 
-多线程ThreadPoolExecutor使用方法
-progress_bar = tqdm(total=len(holder_list), desc='进度')
-# 创建线程池
-with ThreadPoolExecutor(max_workers=4) as executor:
-    futures = {
-        executor.submit(self.get_arkham_label, address): address
-        for address in holder_list
-    }
-    # 处理任务结果
-    for future in as_completed(futures):
-        address = futures[future]  # 根据future获取对应的address
-        arkham_entity, arkham_label = future.result()
-        if arkham_entity is not None or arkham_label is not None:
-            self.label_dict[address] = {}
-            if arkham_entity is not None:
-                self.label_dict[address]['arkham_entity'] = arkham_entity
-            if arkham_label is not None:
-                self.label_dict[address]['arkham_label'] = arkham_label
-        # 更新进度条
-        progress_bar.update(1)
+## 多线程ThreadPoolExecutor使用方法
+	progress_bar = tqdm(total=len(holder_list), desc='进度')
+	# 创建线程池
+	with ThreadPoolExecutor(max_workers=4) as executor:
+	    futures = {
+	        executor.submit(self.get_arkham_label, address): address
+	        for address in holder_list
+	    }
+		# 处理任务结果
+	    for future in as_completed(futures):
+	        address = futures[future]  # 根据future获取对应的address
+	        arkham_entity, arkham_label = future.result()
+	        if arkham_entity is not None or arkham_label is not None:
+	            self.label_dict[address] = {}
+	            if arkham_entity is not None:
+	                self.label_dict[address]['arkham_entity'] = arkham_entity
+	            if arkham_label is not None:
+	                self.label_dict[address]['arkham_label'] = arkham_label
+		# 更新进度条
+	        progress_bar.update(1)
 
-异步编程(使用 asyncio)和多线程编程(使用 ThreadPoolExecutor)在并发处理任务时有一些区别
+### 异步编程(使用 asyncio)和多线程编程(使用 ThreadPoolExecutor)在并发处理任务时有一些区别
 1. 编程模型:
     * 异步编程使用协程(coroutine)和事件循环(event loop)的概念。协程通过 async/await 语法来定义,通过 await 来等待异步操作完成,而事件循环负责调度和执行这些协程。
     * 多线程编程使用线程(thread)的概念。每个任务在一个单独的线程中执行,线程由操作系统调度。ThreadPoolExecutor 是一个线程池,用于管理和重用线程。
