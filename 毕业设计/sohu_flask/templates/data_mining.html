@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>数据爬虫系统</title>
+  <meta content="" name="descriptison">
+  <meta content="" name="keywords">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,600,600i,700,700i,900" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="static/assets/css/style.css" rel="stylesheet">
+    <style>
+    .container {
+        display: flex;
+        justify-content: space-between;
+    }
+    .main-container {
+        display: flex;
+        max-height: 650px;
+    }
+    .left-container {
+      flex: 1;
+      padding: 10px;
+      max-width: 50%;
+      background-color: #f1f1f1;
+    }
+    .right-container {
+      max-width: 50%;
+      min-height: 70%;
+      max-height: 70%;
+      flex: 1;
+      padding: 10px;
+      background-color: #e9e9e9;
+    }
+    .mining-container {
+       display: flex;
+    }
+    .queryResult {
+      max-height: 550px;
+      padding: 5px;
+      border: 1px solid #ccc;
+      background-color: white;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: auto;
+    }
+    .item-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      background-color: #f1f1f1;
+    }
+    .info {
+      display: flex;
+    }
+    .info > div, .index {
+      margin-right: 20px;
+      font-weight: bold;
+    }
+    .form-group input {
+      display: block;
+      width: 30%;
+      padding: 10px;
+      margin-right: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    .radio-group {
+     display:flex;
+     align-items:center;
+      margin-bottom: 15px;
+    }
+    input[type="radio"] {
+     display:none;
+    }
+    input[type="radio"] + label {
+     margin-right:10px;
+     font-size:14px;
+     position:relative;
+     cursor:pointer;
+    }
+    input[type="radio"] + label::before {
+     content:"";
+     display:inline-block;
+     width:18px;
+     height:18px;
+     border:2px solid #000;
+     background-color: white;
+     border-radius:50%;
+     vertical-align:middle;
+     margin-right:5px;
+    }
+    input[type="radio"]:checked + label::before {
+     background-color: #007bff;
+    }
+    .radio-group > label {
+     cursor:pointer;
+     display:block;
+     text-align:center;
+     font-size:12px;
+    }
+    .query-button {
+       display:inline-block;
+       font-size:16px;
+       font-weight:bold;
+       padding:10px 20px;
+       text-align:center;
+       text-decoration:none;
+       border:2px solid #4CAF50;
+       color:#4CAF50;
+       background-color:white;
+       transition:background-color 0.3s,color 0.3s;
+       cursor:pointer;
+       border-radius:5px;
+       margin-bottom: 20px;
+       margin-right: 20px;
+    }
+    .query-button:hover {
+     background-color:#4CAF50;
+     color:white;
+    }
+    .console-text {
+      max-width: 100%;
+      max-height: 35%;
+      min-height: 35%;
+      padding: 5px;
+      margin-bottom: 20px;
+      border: 1px solid blueviolet;
+      background-color: white;
+      font-size: 14px;
+      overflow-y: auto;
+    }
+    .console-translate {
+      max-width: 100%;
+      max-height: 80%;
+      min-height: 80%;
+      padding: 5px;
+      margin-bottom: 5px;
+      border: 1px solid greenyellow;
+      background-color: white;
+      font-size: 13px;
+      overflow-y: auto;
+    }
+    .console-keyword {
+      max-width: 100%;
+      max-height: 80%;
+      min-height: 150px;
+      padding: 5px;
+      margin-bottom: 5px;
+      border: 1px solid blue;
+      background-color: white;
+      font-size: 15px;
+      overflow-y: auto;
+    }
+    .console-lstm {
+      max-width: 100%;
+      max-height: 80%;
+      min-height: 80px;
+      padding: 5px;
+      margin-bottom: 5px;
+      border: 1px solid #f1b0b7;
+      background-color: white;
+      font-size: 15px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header">
+    <div class="container">
+      <div class="logo float-left">
+        <h1 class="text-light"><a href="https://github.com/LZyyds/LZ-repository/"></a></h1>
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <a href="https://github.com/LZyyds/LZ-repository/"><img src="static/assets/img/logo.jpg" alt="" class="img-fluid"></a>
+      </div>
+        <h1>数据挖掘</h1>
+      <nav class="nav-menu float-right d-none d-lg-block">
+        <ul>
+          <li class="active"><a href="/index">首页<i class="la la-angle-down"></i></a></li>
+          <li><a href="/start_crawl">数据爬虫</a></li>
+          <li><a href="/news">数据查阅</a></li>
+          <li><a href="/job_types">数据看板</a></li>
+          <li><a href="/data_mining">数据挖掘</a></li>
+        </ul>
+      </nav><!-- .nav-menu -->
+    </div>
+  </header><!-- End Header -->
+
+<!-- ======= Our Team Section ======= -->
+<!--<section id="team" class="team">-->
+  <div class="main-container">
+<!--    <label for="left-container" style=" font-size: 20px;color: black;padding: 20px 20px 20px;">使用单个商铺操作：</label>-->
+    <div id="left-container" class="left-container">
+      <div class="form-group" style="display: flex; width: 100%; align-items:center;">
+        <label for="input" style="margin-right: 10px; margin-bottom: 20px; font-weight:bold;">关键词:</label>
+        <input type="text" id="input" value="{{ keyword }}">
+
+        <button id="query-button" class="query-button">搜索</button>
+        {% if time == 'last_week' %}
+        <div class="radio-group">
+         <input type="radio" id="radio-week" name="time" value="last_week" checked>
+         <label for="radio-week">近一周</label>
+         <input type="radio" id="radio-month" name="time" value="last_month">
+         <label for="radio-month">近一月</label>
+         <input type="radio" id="radio-all" name="time" value="all">
+         <label for="radio-all">全部</label>
+        </div>
+        {% elif time == 'last_month' %}
+        <div class="radio-group">
+         <input type="radio" id="radio-week" name="time" value="last_week">
+         <label for="radio-week">近一周</label>
+         <input type="radio" id="radio-month" name="time" value="last_month" checked>
+         <label for="radio-month">近一月</label>
+         <input type="radio" id="radio-all" name="time" value="all">
+         <label for="radio-all">全部</label>
+        </div>
+        {% else %}
+        <div class="radio-group">
+         <input type="radio" id="radio-week" name="time" value="last_week">
+         <label for="radio-week">近一周</label>
+         <input type="radio" id="radio-month" name="time" value="last_month">
+         <label for="radio-month">近一月</label>
+         <input type="radio" id="radio-all" name="time" value="all" checked>
+         <label for="radio-all">全部</label>
+        </div>
+        {% endif %}
+      </div>
+      <div class="queryResult" id="queryResult">
+<!--      <section class="counts section-bg">-->
+<!--    <div class="container">-->
+      <!-- 分页导航 -->
+      <div class="pagination">
+        <ul class="pagination-list" style="display: flex;">
+          {% if current_page > 1 %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?keyword={{ keyword }}&time={{ time }}&page={{ current_page - 1 }}">上一页</a></li>
+          {% endif %}
+
+          {% set start_page = current_page - 2 %}
+          {% set end_page = current_page + 2 %}
+          {% if start_page <= 2 %}
+            {% set start_page = 1 %}
+            {% set end_page = 5 if total_pages > 5 else total_pages %}
+          {% endif %}
+
+          {% if start_page > 2 %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?keyword={{ keyword }}&time={{ time }}&page=1">1</a></li>
+            {% if start_page > 3 %}
+              <li class="pagination-item" style="margin-right: 30px;"><span>...</span></li>
+            {% endif %}
+          {% endif %}
+
+          {% for page_num in range(start_page, end_page + 1) %}
+            {% if page_num == current_page %}
+              <li class="pagination-item active" style="margin-right: 30px;"><span>{{ page_num }}</span></li>
+            {% else %}
+              <li class="pagination-item" style="margin-right: 30px;"><a href="?keyword={{ keyword }}&time={{ time }}&page={{ page_num }}">{{ page_num }}</a></li>
+            {% endif %}
+          {% endfor %}
+
+          {% if end_page < total_pages - 1 %}
+            {% if end_page < total_pages - 2 %}
+              <li class="pagination-item" style="margin-right: 30px;"><span>...</span></li>
+            {% endif %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?keyword={{ keyword }}&time={{ time }}&page={{ total_pages }}">{{ total_pages }}</a></li>
+          {% endif %}
+
+          {% if current_page < total_pages %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?keyword={{ keyword }}&time={{ time }}&page={{ current_page + 1 }}">下一页</a></li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <!-- 数据列表 -->
+      <div class="grid-container">
+        {% set start_index = (current_page - 1) * 30 + 1 %}
+        {% for data in data_list[(current_page-1)*30:current_page*30] %}
+          {% set index = loop.index + start_index - 1 %}
+              <div class="item-container">
+                <div class="index">{{ index }} </div>
+                <div class="item-info" style="margin-right: 20px;">
+                  <img src="{{ data[4] }}" height=100 width=200 alt="">
+                </div>
+
+                <div class="item-info">
+                    <div class="info">
+                            <div class="type">{{ data[1] }} </div>
+                            <div class="label">{{ data[2] }} </div>
+                            <div class="area">{{ data[9] }}</div>
+                            <div class="medie">{{ data[8] }}</div>
+                    </div>
+                    <a href="{{ data[3] }}">
+                      <div class="title" title="{{ data[6] }}">{{ data[6] }}</div>
+                    </a>
+                    <div class="article-text" title="{{ data[7] }}">{{ data[7][:60] }}···</div>
+                    <div class="info">
+                      <div class="article-time" style="border: 2px solid #fa8072; /* 设置边框样式和颜色 */">发布时间:{{ data[10] }}</div>
+                      <div class="read-num">阅读量:{{ data[5] }} </div>
+                      <button onclick="copyToClipboard(event)">复制</button>
+                    </div>
+                </div>
+              </div>
+        {% endfor %}
+      </div>
+      <!-- 分页导航 -->
+      <div class="pagination">
+        <ul class="pagination-list" style="display: flex;">
+          {% if current_page > 1 %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?keyword={{ keyword }}&time={{ time }}&page={{ current_page - 1 }}">上一页</a></li>
+          {% endif %}
+
+          {% set start_page = current_page - 2 %}
+          {% set end_page = current_page + 2 %}
+          {% if start_page <= 2 %}
+            {% set start_page = 1 %}
+            {% set end_page = 5 if total_pages > 5 else total_pages %}
+          {% endif %}
+
+          {% if start_page > 2 %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?keyword={{ keyword }}&time={{ time }}&page=1">1</a></li>
+            {% if start_page > 3 %}
+              <li class="pagination-item" style="margin-right: 30px;"><span>...</span></li>
+            {% endif %}
+          {% endif %}
+
+          {% for page_num in range(start_page, end_page + 1) %}
+            {% if page_num == current_page %}
+              <li class="pagination-item active" style="margin-right: 30px;"><span>{{ page_num }}</span></li>
+            {% else %}
+              <li class="pagination-item" style="margin-right: 30px;"><a href="?keyword={{ keyword }}&time={{ time }}&page={{ page_num }}">{{ page_num }}</a></li>
+            {% endif %}
+          {% endfor %}
+
+          {% if end_page < total_pages - 1 %}
+            {% if end_page < total_pages - 2 %}
+              <li class="pagination-item" style="margin-right: 30px;"><span>...</span></li>
+            {% endif %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?keyword={{ keyword }}&time={{ time }}&page={{ total_pages }}">{{ total_pages }}</a></li>
+          {% endif %}
+
+          {% if current_page < total_pages %}
+            <li class="pagination-item" style="margin-right: 30px;"><a href="?keyword={{ keyword }}&time={{ time }}&page={{ current_page + 1 }}">下一页</a></li>
+          {% endif %}
+        </ul>
+        </div>
+<!--  </section>&lt;!&ndash; End Counts Section &ndash;&gt;-->
+      </div>
+    </div>
+
+    <div class="right-container">
+       <label for="console-text" style="margin-bottom: 5px; font-weight:bold;">正文:</label>
+       <div class="console-text" id="console-text"></div>
+       <div class="mining-container" style="max-height: 61%; min-height: 58%">
+           <div class="translate-container" style="width: 55%;">
+                <div class="translate-group" style="display: flex; width: 100%; margin-bottom: 10px; align-items:center;">
+                    <label for="translate-button" style="margin-right: 20px; font-weight:bold;">以下翻译结果来自有道神经网络翻译（YNMT）</label>
+                    <button id="translate-button" class="translate-button">翻译</button>
+                </div>
+               <div class="console-translate" id="console-translate"></div>
+           </div>
+
+           <div class="mac-learn-container" style="width: 40%; min-height: 90%; margin-left: 15px">
+               <div class="keyword-container" style="max-height: 61%; min-height: 58%">
+                  <div class="keyword-group" style="display: flex; width: 100%; margin-bottom: 10px; align-items:center;">
+                    <label for="keyword-button" style="margin-right: 20px; font-weight:bold; margin-left: 20px;">正文关键词:</label>
+                    <button id="keyword-button" class="keyword-button">提取</button>
+                    <div id="start-message1" class="start-message" style="height: 27px; width: 90px;margin-left: 20px; background-color: #f2f2f2; padding: 0; border: 1px solid #ccc;"></div>
+                  </div>
+                  <div class="console-keyword" id="console-keyword"></div>
+               </div>
+               <div class="lstm-container">
+                  <div class="lstm-group" style="display: flex; width: 100%; margin-bottom: 10px; align-items:center;">
+                    <label for="lstm-button" style="margin-right: 20px; font-weight:bold; margin-left: 20px;">LSTM模型:</label>
+                    <button id="lstm-button" class="lstm-button">分析</button>
+                    <div id="start-message2" class="start-message" style="height: 27px; width: 90px;margin-left: 20px; background-color: #f2f2f2; padding: 0; border: 1px solid #ccc;"></div>
+                  </div>
+                  <div class="console-lstm" id="console-lstm"></div>
+               </div>
+           </div>
+       </div>
+    </div>
+
+  </div>
+<script>
+  // 查询按钮点击事件绑定到 document 上，这样无论页面内容如何变化，事件监听器都会保持有效。
+document.addEventListener('click',function(event) {
+ if (event.target && event.target.id === 'query-button') {
+   var keyword = document.getElementById('input').value;
+   var timeRadios = document.querySelectorAll('input[name="time"]');
+    var selectedTime = Array.from(timeRadios).find(radio => radio.checked).value;
+   fetch(`/data_mining?keyword=${keyword}&time=${selectedTime}`,{
+      method:'GET',
+   })
+   .then(function(response) {
+     return response.text();
+   })
+   .then(function(data) {
+     // 处理返回的新页面内容
+     document.body.innerHTML = data;
+     document.getElementById('input').value = keyword;
+     // 恢复上次勾选的值
+     // var lastCheckedTime = localStorage.getItem('lastCheckedTime');
+     // if (lastCheckedTime) {
+     //   document.querySelector('input[name="time"][value="' + lastCheckedTime + '"]').checked = true;
+     // }
+   })
+   .catch(function(error) {
+     console.log(error);// 检查响应数据的结构和内容
+   });
+ }
+});
+
+// 保存勾选状态
+// document.addEventListener('change',function (event) {
+//  if (event.target && event.target.type === 'radio' && event.target.name === 'time' && event.target.checked) {
+//    localStorage.setItem('lastCheckedTime',event.target.value);
+//  }
+// });
+
+ function copyToClipboard(event) {
+   var articleText = event.target.parentElement.previousElementSibling.title;
+   if (articleText) {
+     navigator.clipboard.writeText(articleText)
+     .then(() => {
+       // alert('文本已复制到剪切板！');
+       document.getElementById('console-text').innerHTML
+           = articleText.replace(/\n/g, "<br />").replace(/\t/g,"&nbsp;&nbsp;&nbsp;&nbsp;");
+     })
+     .catch(err => {
+       console.error('复制失败',err);
+       alert('复制失败');
+     });
+   }
+ }
+  // 翻译按钮点击事件
+  document.getElementById('translate-button').addEventListener('click', function() {
+    var translate_text = document.getElementById('console-text').innerHTML;
+    // 发送POST请求到后端
+    fetch('/translate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        text: translate_text,
+      })
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function (data) {
+      console.log(data.result) // 检查响应数据的结构和内容
+      // 更新页面内容
+      document.getElementById('console-translate').innerHTML = data.result.replace(/\n/g, "<br />");
+    })
+    .catch(function(error) {
+      console.log(error); // 检查响应数据的结构和内容
+      document.getElementById('console-translate').innerHTML = "请检查是否具备nodejs环境" + "<br />" + error;
+    });
+  });
+
+   // 提取关键词按钮点击事件
+  document.getElementById('keyword-button').addEventListener('click', function() {
+    var text = document.getElementById('console-text').innerHTML;
+    // 发送POST请求到后端
+    fetch('/get_keywords', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        text: text,
+      })
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function (data) {
+      console.log(data.result) // 检查响应数据的结构和内容
+      // 更新页面内容
+      document.getElementById('console-keyword').innerHTML = data.result.replace(/\n/g, "<br />");
+      var uploadMessage = document.getElementById('start-message1');
+      if (data.success) {
+        uploadMessage.textContent = '  提取完毕';
+        uploadMessage.style.color = 'green';
+      } else {
+        uploadMessage.textContent = '  提取失败';
+        uploadMessage.style.color = 'red';
+      }
+    })
+    .catch(function(error) {
+      console.log(error); // 检查响应数据的结构和内容
+      document.getElementById('console-keyword').innerHTML = error;
+    });
+  });
+
+     // 情感分析按钮点击事件
+  document.getElementById('lstm-button').addEventListener('click', function() {
+    var text = document.getElementById('console-text').innerHTML;
+    // 发送POST请求到后端
+    fetch('/sent_lstm', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        text: text,
+      })
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function (data) {
+      console.log(data.result) // 检查响应数据的结构和内容
+      // 更新页面内容
+      document.getElementById('console-lstm').innerHTML = data.result.replace(/\n/g, "<br />");
+      var uploadMessage = document.getElementById('start-message2');
+      if (data.success) {
+        uploadMessage.textContent = '  分析完毕';
+        uploadMessage.style.color = 'green';
+      } else {
+        uploadMessage.textContent = '  分析失败';
+        uploadMessage.style.color = 'red';
+      }
+    })
+    .catch(function(error) {
+      console.log(error); // 检查响应数据的结构和内容
+      document.getElementById('console-lstm').innerHTML = error;
+    });
+  });
+</script>
+
+
+</body>
+
+</html>

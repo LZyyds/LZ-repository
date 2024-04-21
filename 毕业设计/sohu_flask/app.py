@@ -1,16 +1,15 @@
-import io
-
-from flask import Flask, render_template, request, g, Response, jsonify
+from flask import Flask, render_template, request, jsonify
 from crawl_sohu import SohuSpider
+from public_funs import *
+import datetime
 import pymysql
 import matplotlib.pyplot as plt
-import re
+import io
 import tkinter as tk
-import csv
 import os
 import matplotlib.font_manager as font_manager
 import pandas as pd
-import bag
+import paddlehub as hub
 
 # 设置中文字体为SimHei
 font_path = r'./static/SimHei.ttf'  # 根据实际字体文件的路径进行修改
@@ -21,6 +20,17 @@ app = Flask(__name__)
 app.static_folder = os.path.join(app.root_path, 'static')
 app.template_folder = os.path.join(app.root_path, 'templates')
 app.debug = True
+
+
+class SentimentAnalysisModel:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.senta = hub.Module(name="senta_lstm")
+        return cls._instance
+
 # 数据库连接信息
 mysql_connect_config = {
     'host': 'localhost',
@@ -31,10 +41,7 @@ mysql_connect_config = {
 
 
 def connect_db():
-    """
-    获取数据库连接
-    :return:
-    """
+    """ 获取数据库连接 """
     # 创建数据库连接
     conn = pymysql.connect(host=mysql_connect_config['host'],
                            user=mysql_connect_config['user'],
@@ -66,7 +73,109 @@ def start_crawl():
     return render_template("start_crawl.html")
 
 
-def data_review(table_name):
+@app.after_request
+def add_header(response):
+    response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
+@app.route('/data_mining', methods=['POST', 'GET'])
+def data_mining():
+    data_list = []
+    keyword = request.args.get('keyword', '')
+    time = request.args.get('time')
+    if time == "last_week":
+        start_date = datetime.datetime.now() - datetime.timedelta(days=7)
+    elif time == "last_month":
+        start_date = datetime.datetime.now() - datetime.timedelta(days=30)
+    else:
+        start_date = datetime.datetime(1970, 1, 1)
+
+    start_date_str = start_date.strftime('%Y-%m-%d %H:%M:%S')
+    # 连接数据库
+    conn, cursor = connect_db()
+    if len(keyword) != 0:
+        # 构建查询sql语句
+        sql = f"""
+           (SELECT * FROM `新闻` WHERE `正文` LIKE '%{keyword}%' and `发布时间` >= '{start_date_str}')
+           UNION ALL
+           (SELECT * FROM `娱乐` WHERE `正文` LIKE '%{keyword}%' and `发布时间` >= '{start_date_str}')
+           UNION ALL
+           (SELECT * FROM `汽车` WHERE `正文` LIKE '%{keyword}%' and `发布时间` >= '{start_date_str}')
+           UNION ALL
+           (SELECT * FROM `科技` WHERE `正文` LIKE '%{keyword}%' and `发布时间` >= '{start_date_str}')
+           UNION ALL
+           (SELECT * FROM `财经` WHERE `正文` LIKE '%{keyword}%' and `发布时间` >= '{start_date_str}');
+        """
+    else:
+        sql = f"""
+           (SELECT * FROM `新闻` WHERE `发布时间` >= '{start_date_str}')
+           UNION ALL
+           (SELECT * FROM `娱乐` WHERE `发布时间` >= '{start_date_str}')
+           UNION ALL
+           (SELECT * FROM `汽车` WHERE `发布时间` >= '{start_date_str}')
+           UNION ALL
+           (SELECT * FROM `科技` WHERE `发布时间` >= '{start_date_str}')
+           UNION ALL
+           (SELECT * FROM `财经` WHERE `发布时间` >= '{start_date_str}');
+        """
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    for item in data:
+        data_list.append(item)
+    close_db(conn, cursor)
+    current_page = int(request.args.get('page', 1))  # 获取URL参数中的页码值，默认为1
+    total_pages = len(data_list) // 30  # 计算总页数
+    print(len(data_list))
+
+    return render_template("data_mining.html", data_list=data_list, keyword=keyword, time=time,
+                           current_page=current_page, total_pages=total_pages)
+
+@app.route('/translate', methods=['POST', 'GET'])
+def translate_text():
+    response = request.get_json()
+    text = response.get('text', '404')
+    if len(text) > 5000:
+        text = text[:5000]
+    result = translate(text)
+
+    return jsonify({'success': True, 'result': result})
+
+@app.route('/get_keywords', methods=['POST', 'GET'])
+def get_keywords():
+    response = request.get_json()
+    text = response.get('text', '404')
+    if text == '404':
+        result = text
+    else:
+        text = text.strip().replace(' ', '').replace('\n', '')
+        result1 = tf_idf(text)
+        result2 = TextRank(text)
+        result3 = lsi(text)
+        result = result1 + result2 + result3
+
+    return jsonify({'success': True, 'result': result})
+
+@app.route('/sent_lstm', methods=['POST', 'GET'])
+def sent_lstm():
+    response = request.get_json()
+    text = response.get('text', '404')
+    if text == '404':
+        result = text
+    else:
+        senta_model = SentimentAnalysisModel()
+        text = text.strip().replace(' ', '').replace('\n', '')
+        text_list = list(text)
+        result_list = senta_model.senta.sentiment_classify(texts=text_list)
+        result_dict = result_list[0]
+        result = f'LSTM模型情感分析结果为：\n' \
+                 f'"sentiment_key":{result_dict["sentiment_key"]},\n' \
+                 f'"positive_probs":{result_dict["positive_probs"]},\n' \
+                 f'"negative_probs":{result_dict["negative_probs"]}'
+
+    return jsonify({'success': True, 'result': result})
+
+def data_view(table_name):
     data_list = []
     # 连接数据库
     conn, cursor = connect_db()
@@ -82,10 +191,12 @@ def data_review(table_name):
     total_pages = len(data_list) // 30  # 计算总页数
 
     return data_list, current_page, total_pages
+
+
 @app.route('/news')
 def news_table():
     table_name = '新闻'
-    data_list, current_page, total_pages = data_review(table_name)
+    data_list, current_page, total_pages = data_view(table_name)
 
     return render_template("data_view.html", data_list=data_list, table_name=table_name,
                            current_page=current_page, total_pages=total_pages)
@@ -94,7 +205,7 @@ def news_table():
 @app.route('/yule')
 def yule_table():
     table_name = '娱乐'
-    data_list, current_page, total_pages = data_review(table_name)
+    data_list, current_page, total_pages = data_view(table_name)
 
     return render_template("data_view.html", data_list=data_list, table_name=table_name,
                            current_page=current_page, total_pages=total_pages)
@@ -103,7 +214,7 @@ def yule_table():
 @app.route('/car')
 def car_table():
     table_name = '汽车'
-    data_list, current_page, total_pages = data_review(table_name)
+    data_list, current_page, total_pages = data_view(table_name)
 
     return render_template("data_view.html", data_list=data_list, table_name=table_name,
                            current_page=current_page, total_pages=total_pages)
@@ -112,18 +223,20 @@ def car_table():
 @app.route('/tech')
 def tech_table():
     table_name = '科技'
-    data_list, current_page, total_pages = data_review(table_name)
+    data_list, current_page, total_pages = data_view(table_name)
 
     return render_template("data_view.html", data_list=data_list, table_name=table_name,
                            current_page=current_page, total_pages=total_pages)
+
 
 @app.route('/fina')
 def fina_table():
     table_name = '财经'
-    data_list, current_page, total_pages = data_review(table_name)
+    data_list, current_page, total_pages = data_view(table_name)
 
     return render_template("data_view.html", data_list=data_list, table_name=table_name,
                            current_page=current_page, total_pages=total_pages)
+
 
 @app.route('/table_info', methods=['POST'])
 def table_info():
@@ -143,6 +256,7 @@ def table_info():
 
     return jsonify({'success': True, 'msg': df_info_str})
 
+
 @app.route('/drop_null', methods=['POST'])
 def drop_null():
     response = request.get_json()
@@ -160,6 +274,7 @@ def drop_null():
 
     return jsonify({'success': True, 'msg': msg})
 
+
 @app.route('/crawl_news', methods=['POST'])
 def crawl_news():
     article_type = '新闻'
@@ -171,6 +286,7 @@ def crawl_news():
     spider = SohuSpider(url_dict)
     spider.spider_main()
     return jsonify({'success': True, 'msg': spider.console})
+
 
 @app.route('/crawl_yule', methods=['POST'])
 def crawl_yule():
@@ -187,6 +303,7 @@ def crawl_yule():
     spider.spider_main()
     return jsonify({'success': True, 'msg': spider.console})
 
+
 @app.route('/crawl_car', methods=['POST'])
 def crawl_car():
     article_type = '汽车'
@@ -199,6 +316,7 @@ def crawl_car():
     spider = SohuSpider(url_dict)
     spider.spider_main()
     return jsonify({'success': True, 'msg': spider.console})
+
 
 @app.route('/crawl_tech', methods=['POST'])
 def crawl_tech():
@@ -213,6 +331,7 @@ def crawl_tech():
     spider.spider_main()
     return jsonify({'success': True, 'msg': spider.console})
 
+
 @app.route('/crawl_fina', methods=['POST'])
 def crawl_fina():
     article_type = '财经'
@@ -226,6 +345,7 @@ def crawl_fina():
     spider = SohuSpider(url_dict)
     spider.spider_main()
     return jsonify({'success': True, 'msg': spider.console})
+
 
 @app.route('/job_types')
 def job_types():
@@ -313,60 +433,9 @@ def add():
     return render_template('add.html')
 
 
-# 导出数据的路由
-# noinspection PyUnresolvedReferences
-@app.route('/export')
-def export():
-    return render_template('export.html')
-
-
-def is_excel_or_csv_file(file_path):
-    _, file_extension = os.path.splitext(file_path)
-    if file_extension.lower() in ['.xlsx', '.xls', '.xlsm']:
-        return 'Excel'
-    elif file_extension.lower() == '.csv':
-        return 'CSV'
-    else:
-        return 'Unknown'
-
-
-def field(path, sheet_name='Sheet1'):
-    judge = is_excel_or_csv_file(path)
-    if judge == 'Excel':
-        data = bag.Bag.read_excel(path, sheet_name=sheet_name)
-        return tuple(data[0])
-    elif judge == 'CSV':
-        data = bag.Bag.read_csv(path)
-        return tuple(data[0])
-    else:
-        print('不支持的文件格式！')
-
-
-def show_error_popup(message):
+def show_popup(message):
     root = tk.Tk()
-    root.title("Error Message")
-
-    # 设置窗口大小
-    window_width = 300
-    window_height = 100
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
-    x = screen_width - window_width - 500  # 将窗口定位到右下角，留一定的边距
-    y = screen_height - window_height - 400
-    root.geometry(f"{window_width}x{window_height}+{x}+{y}")
-
-    # 将窗口设置为最顶层
-    root.attributes('-topmost', True)
-
-    label = tk.Label(root, text=message, padx=20, pady=20)
-    label.pack()
-
-    root.mainloop()
-
-
-def show_true_popup(message):
-    root = tk.Tk()
-    root.title("True Message")
+    root.title("Popup Message")
 
     # 设置窗口大小和位置
     window_width = 300
@@ -379,7 +448,6 @@ def show_true_popup(message):
 
     # 将窗口设置为最顶层
     root.attributes('-topmost', True)
-
     label = tk.Label(root, text=message, padx=20, pady=20)
     label.pack()
 
@@ -388,318 +456,7 @@ def show_true_popup(message):
 
     # 设置定时器，在3秒后调用关闭弹窗函数
     root.after(3000, close_popup)
-
     root.mainloop()
-
-
-def get_possible_field_values(cursor, table_name, field_name):
-    query = "SELECT DISTINCT {} FROM {}".format(field_name, table_name)
-    cursor.execute(query)
-    results = cursor.fetchall()
-    values = [row[0] for row in results]
-    values.append('')
-    return values
-
-
-@app.route('/export_data', methods=['POST'])
-def export_data():
-    data = request.get_json()
-    table_name = data['table_name']
-    item = data['item']
-    scene = data['scene']
-    quantity = data['quantity']
-    # 连接数据库
-    conn = sqlite3.connect(database_path)
-    cursor = conn.cursor()
-
-    filename = os.path.join(app.static_folder, 'exported_data.csv')
-
-    # 判断字段是否存在
-    if not (f'{item}' in get_possible_field_values(cursor, f'{table_name}', 'item')) \
-            or not (f'{scene}' in get_possible_field_values(cursor, f'{table_name}', 'scene')):
-        msg = f"********* 该字段不存在 *********\n请检查是否输入正确信息"
-        show_error_popup(msg)
-        cursor.close()
-        conn.close()
-        return jsonify({'error': msg})
-
-    try:
-        # 导出整个表格数据
-        if not bool(item) and not bool(scene) and not bool(quantity):
-            # 查询数据
-            sql = f'SELECT * FROM {table_name}'
-            cursor.execute(sql)
-            data = cursor.fetchall()
-
-            # 导出数据为CSV文件
-            with open(filename, 'w', newline='', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerow(
-                    ['ID', 'Classification', 'Item', 'Scene', 'Brand', 'Trade', 'Job Types', 'Title', 'Content',
-                     'types_of', 'tone', 'crowd', 'Keywords', 'Url'])
-                writer.writerows(data)
-
-        # 导出表格部分数据
-        elif not bool(item) and not bool(scene) and bool(quantity):
-            sql = f'SELECT * FROM {table_name} limit {quantity};'
-            cursor.execute(sql)
-            data = cursor.fetchall()
-
-            # 导出数据为CSV文件
-            with open(filename, 'w', newline='', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerow(
-                    ['ID', 'Classification', 'Item', 'Scene', 'Brand', 'Trade', 'Job Types', 'Title', 'Content',
-                     'types_of',
-                     'tone', 'crowd', 'Keywords', 'Url'])
-                writer.writerows(data)
-        # 导出item的所有数据
-        elif bool(item) and not bool(scene) and not bool(quantity):
-            sql = f"SELECT * FROM {table_name} where item='{item}';"
-            cursor.execute(sql)
-            data = cursor.fetchall()
-
-            # 导出数据为CSV文件
-            with open(filename, 'w', newline='', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerow(
-                    ['ID', 'Classification', 'Item', 'Scene', 'Brand', 'Trade', 'Job Types', 'Title', 'Content',
-                     'types_of',
-                     'tone', 'crowd', 'Keywords', 'Url'])
-                writer.writerows(data)
-        # 导出item的部分数据
-        elif bool(item) and not bool(scene) and bool(quantity):
-            sql = f"SELECT * FROM {table_name} where item='{item}' limit {quantity};"
-            cursor.execute(sql)
-            data = cursor.fetchall()
-
-            # 导出数据为CSV文件
-            with open(filename, 'w', newline='', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerow(
-                    ['ID', 'Classification', 'Item', 'Scene', 'Brand', 'Trade', 'Job Types', 'Title', 'Content',
-                     'types_of',
-                     'tone', 'crowd', 'Keywords', 'Url'])
-                writer.writerows(data)
-        # 导出scene的所有数据
-        elif not bool(item) and bool(scene) and not bool(quantity):
-            sql = f"SELECT * FROM {table_name} where scene='{scene}';"
-            cursor.execute(sql)
-            data = cursor.fetchall()
-
-            # 导出数据为CSV文件
-            with open(filename, 'w', newline='', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerow(
-                    ['ID', 'Classification', 'Item', 'Scene', 'Brand', 'Trade', 'Job Types', 'Title', 'Content',
-                     'types_of',
-                     'tone', 'crowd', 'Keywords', 'Url'])
-                writer.writerows(data)
-        # 导出scene的部分数据
-        elif not bool(item) and bool(scene) and bool(quantity):
-            sql = f"SELECT * FROM {table_name} where scene='{scene}' limit {quantity};"
-            cursor.execute(sql)
-            data = cursor.fetchall()
-
-            # 导出数据为CSV文件
-            with open(filename, 'w', newline='', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerow(
-                    ['ID', 'Classification', 'Item', 'Scene', 'Brand', 'Trade', 'Job Types', 'Title', 'Content',
-                     'types_of',
-                     'tone', 'crowd', 'Keywords', 'Url'])
-                writer.writerows(data)
-        # 导出item和scene的所有数据
-        elif bool(item) and bool(scene) and not bool(quantity):
-            sql = f"SELECT * FROM {table_name} where item='{item}' and scene='{scene}';"
-            cursor.execute(sql)
-            data = cursor.fetchall()
-
-            # 导出数据为CSV文件
-            with open(filename, 'w', newline='', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerow(
-                    ['ID', 'Classification', 'Item', 'Scene', 'Brand', 'Trade', 'Job Types', 'Title', 'Content',
-                     'types_of',
-                     'tone', 'crowd', 'Keywords', 'Url'])
-                writer.writerows(data)
-        # 导出item和scene相交的所有数据
-        elif bool(item) and bool(scene) and not bool(quantity):
-            sql = f"SELECT * FROM {table_name} where item='{item}' and scene='{scene}';"
-            cursor.execute(sql)
-            data = cursor.fetchall()
-
-            # 导出数据为CSV文件
-            with open(filename, 'w', newline='', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerow(
-                    ['ID', 'Classification', 'Item', 'Scene', 'Brand', 'Trade', 'Job Types', 'Title', 'Content',
-                     'types_of',
-                     'tone', 'crowd', 'Keywords', 'Url'])
-                writer.writerows(data)
-        # 导出item和scene相交的部分数据
-        elif bool(item) and bool(scene) and bool(quantity):
-            sql = f"SELECT * FROM {table_name} where item='{item}' and scene='{scene}' limit {quantity};"
-            cursor.execute(sql)
-            data = cursor.fetchall()
-
-            # 导出数据为CSV文件
-            with open(filename, 'w', newline='', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerow(
-                    ['ID', 'Classification', 'Item', 'Scene', 'Brand', 'Trade', 'Job Types', 'Title', 'Content',
-                     'types_of',
-                     'tone', 'crowd', 'Keywords', 'Url'])
-                writer.writerows(data)
-
-        # 显示导出成功信息
-        show_true_popup("数据导出成功！！")
-
-    except Exception as e:
-        msg = f"导出数据时发生错误: {str(e)}"
-        return jsonify({'error': msg})
-    # 关闭数据库连接
-    cursor.close()
-    conn.close()
-
-    return jsonify(filename)
-
-
-@app.route('/get_data', methods=['POST'])
-def get_data():
-    table_name = request.form['table_name']
-    offset = int(request.form.get('offset', 0))
-    limit = 50  # 每次加载50条数据
-
-    # 连接数据库
-    conn = sqlite3.connect(database_path)
-    cursor = conn.cursor()
-
-    # 查询数据
-    sql = f'SELECT * FROM {table_name} LIMIT {limit} OFFSET {offset}'
-    cursor.execute(sql)
-    data = cursor.fetchall()
-
-    # 关闭数据库连接
-    cursor.close()
-    conn.close()
-
-    return jsonify(data)
-
-
-@app.route('/get_data1', methods=['POST'])
-def get_data1():
-    data = request.get_json()
-    table_name = data['table_name']
-
-    result = []
-    # 连接数据库
-    conn = sqlite3.connect(database_path)
-    cursor = conn.cursor()
-
-    # 查询数据
-    sql = f'SELECT * FROM {table_name}'
-    cursor.execute(sql)
-    data = cursor.fetchall()
-
-    for i in data:
-        tup = i[1:4]
-        if tup not in result:
-            result.append(tup)
-
-    # 关闭数据库连接
-    cursor.close()
-    conn.close()
-
-    return jsonify(result)
-
-
-@app.route('/upload_data', methods=['POST'])
-def upload_data():
-    db_path = database_path
-    save_dir = os.path.dirname(db_path)
-    table_name = request.form.get('table_name')
-    file = request.files['file']
-    sheet_name = 'Sheet1'  # 待优化
-
-    with sqlite3.connect(db_path) as conn:
-        file_path = os.path.join(save_dir, file.filename)
-        file.save(file_path)
-
-        s = field(file_path, sheet_name=sheet_name)
-        count = list(s)
-        VALUE = '?' * len(count)
-        fie_tit = f"INSERT INTO {table_name} ({', '.join(s)}) VALUES ({','.join(VALUE)})"
-
-        data = bag.Bag.read_excel(file_path)
-        for info in data[1:]:
-            conn.execute(fie_tit, tuple(info))
-        conn.commit()
-
-    return jsonify({'success': True, 'message': '上传成功'})
-
-
-@app.route('/add_table')
-def add_table():
-    return render_template('start_crawl.html')
-
-
-@app.route('/createTable', methods=['POST'])
-def create_table():
-    data = request.get_json()
-    tableNameCn = data.get('tableNameCn')
-    tableNameEn = data.get('tableNameEn')
-    dynamicFields = data.get('dynamicFields')
-
-    if tableNameCn is None:
-        return jsonify({'error': '表格名字不能为空'})
-
-    conn = sqlite3.connect(database_path)
-    c = conn.cursor()
-
-    c.execute(f"CREATE TABLE IF NOT EXISTS {tableNameEn} ("
-              f"id INTEGER PRIMARY KEY, "
-              f"classification TEXT, "
-              f"item TEXT, "
-              f"scene TEXT)")
-
-    for field in dynamicFields:
-        fieldName = field.get('name')
-        fieldType = field.get('type')
-        # 检查列是否存在
-        c.execute(f"PRAGMA table_info({tableNameEn})")
-        columns = [column[1] for column in c.fetchall()]
-        if fieldName not in columns:
-            # 添加新列
-            c.execute(f"ALTER TABLE {tableNameEn} ADD COLUMN {fieldName} {fieldType}")
-
-    conn.commit()
-    conn.close()
-
-    additional_content = f'<option value="{tableNameEn}">{tableNameCn}</option>'
-
-    html_file_path = './templates/export.html'  # 导出html
-    html_file_path1 = './templates/add.html'  # 导入html
-
-    with open(html_file_path, mode='r', encoding='utf8') as file:
-        html_content = file.read()
-    modified_html_content = html_content.replace("</select>", additional_content + "</select>")
-
-    ls = re.findall(r'<option.*?value="(.*?)">', html_content, re.S)
-    if tableNameEn in ls:
-        return jsonify({'message': '表格已存在，无需创建'})
-    else:
-        '''导出html增加下拉列表值'''
-        with open(html_file_path, "w", encoding="utf-8") as w_file:
-            w_file.write(modified_html_content)
-        '''导入html增加下拉列表值'''
-        with open(html_file_path1, mode='r', encoding='utf8') as file1:
-            html_content1 = file1.read()
-        modified_html_content1 = html_content1.replace("</select>", additional_content + "</select>")
-        with open(html_file_path1, "w", encoding="utf-8") as w_file1:
-            w_file1.write(modified_html_content1)
-
-    return jsonify({'message': '表格创建成功，请刷新页面加载表格'})
 
 
 if __name__ == '__main__':

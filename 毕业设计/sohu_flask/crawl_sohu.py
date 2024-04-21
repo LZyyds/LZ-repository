@@ -138,7 +138,7 @@ class SohuSpider:
         # 正文处理空行格式
         text = "\n".join(paragraph_list)
         text = '\t' + text.replace("\n\n", "\n").replace(
-                "\n\n\n", "\n").replace("\n", "\n\t").replace("\n\t\n\t", "\n").strip()
+                "\n\n\n", "\n").replace("\n\t\n\t", "\n").replace("\n", "\n\t").strip()
         text = text.split('\n\t推荐阅读')[0].split('\n\t责任编辑')[0].replace('返回搜狐，查看更多', '')
 
         # 标题
