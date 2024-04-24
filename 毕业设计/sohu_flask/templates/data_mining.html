@@ -390,7 +390,7 @@
 
   </div>
 <script>
-  // 查询按钮点击事件绑定到 document 上，这样无论页面内容如何变化，事件监听器都会保持有效。
+// 查询按钮点击事件绑定到 document 上，这样无论页面内容如何变化，事件监听器都会保持有效。
 document.addEventListener('click',function(event) {
  if (event.target && event.target.id === 'query-button') {
    var keyword = document.getElementById('input').value;
@@ -406,11 +406,6 @@ document.addEventListener('click',function(event) {
      // 处理返回的新页面内容
      document.body.innerHTML = data;
      document.getElementById('input').value = keyword;
-     // 恢复上次勾选的值
-     // var lastCheckedTime = localStorage.getItem('lastCheckedTime');
-     // if (lastCheckedTime) {
-     //   document.querySelector('input[name="time"][value="' + lastCheckedTime + '"]').checked = true;
-     // }
    })
    .catch(function(error) {
      console.log(error);// 检查响应数据的结构和内容

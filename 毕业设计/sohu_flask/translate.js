@@ -1,9 +1,7 @@
 const cyrtpo = require('crypto')
-
 function y(e) {
     return cyrtpo.createHash("md5").update(e).digest()
 }
-
 R = (t) => {
     o = 'ydsecret://query/key/B*RGygVywfNBwpmBaZg*WT7SIOUP2T0C9WHMZN39j^DAdaZhAnxvGcCY6VYFwnHl'
     n = 'ydsecret://query/iv/C@lZe2YzHtZ2CYgaXKSVfsb7Y4QWHjITPPZ0nQp87fBeJ!Iv6v^6fvi2WN@bYpJ4'
@@ -11,22 +9,16 @@ R = (t) => {
     i = y(n)
     r = cyrtpo.createDecipheriv("aes-128-cbc", a, i);
     let s = r.update(t, "base64", "utf-8");
-    return s += r.final("utf-8"),
-        s
+    return s += r.final("utf-8"), s
 }
-
-
 function j(e) {
     return cyrtpo.createHash("md5").update(e.toString()).digest("hex")
 }
-
-
 function k(e, t) {
     u = "fanyideskweb";
     d = "webfanyi"
     return j(`client=${u}&mysticTime=${e}&product=${d}&key=${t}`)
 }
-
 function get_sign() {
     const o = (new Date).getTime();
     sign = k(o, e = "fsdsogkndfokasodnaso")

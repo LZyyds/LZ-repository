@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, g
 from crawl_sohu import SohuSpider
 from public_funs import *
-import datetime
+from datetime import datetime, timedelta
 import pymysql
 import matplotlib.pyplot as plt
 import io
@@ -15,7 +15,13 @@ import paddlehub as hub
 font_path = r'./static/SimHei.ttf'  # 根据实际字体文件的路径进行修改
 font_prop = font_manager.FontProperties(fname=font_path)
 plt.rcParams['font.family'] = font_prop.get_name()
-
+# 数据库连接信息
+mysql_connect_config = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': '123456',
+    'database': 'sohu',
+}
 app = Flask(__name__)
 app.static_folder = os.path.join(app.root_path, 'static')
 app.template_folder = os.path.join(app.root_path, 'templates')
@@ -31,32 +37,24 @@ class SentimentAnalysisModel:
             cls._instance.senta = hub.Module(name="senta_lstm")
         return cls._instance
 
-# 数据库连接信息
-mysql_connect_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': '123456',
-    'database': 'sohu',
-}
 
+def get_db():
+    if 'db' not in g:
+        g.db = pymysql.connect(host=mysql_connect_config['host'],
+                               user=mysql_connect_config['user'],
+                               password=mysql_connect_config['password'],
+                               database=mysql_connect_config['database'],
+                               charset='utf8mb4')
+    return g.db
 
-def connect_db():
-    """ 获取数据库连接 """
-    # 创建数据库连接
-    conn = pymysql.connect(host=mysql_connect_config['host'],
-                           user=mysql_connect_config['user'],
-                           password=mysql_connect_config['password'],
-                           database=mysql_connect_config['database'],
-                           charset='utf8mb4')
-    cursor = conn.cursor()
-    return conn, cursor
+def close_db(e=None):
+    db = g.pop('db', None)
+    if db is not None:
+        db.close()
 
-
-def close_db(cursor, conn):
-    # 关闭游标和连接
-    cursor.close()
-    conn.close()
-
+@app.teardown_appcontext
+def teardown_db(exception):
+    close_db()
 
 @app.route('/')
 def index():
@@ -72,58 +70,45 @@ def home():
 def start_crawl():
     return render_template("start_crawl.html")
 
-
-@app.after_request
-def add_header(response):
-    response.headers['Cache-Control'] = 'no-store'
-    return response
-
-
 @app.route('/data_mining', methods=['POST', 'GET'])
 def data_mining():
     data_list = []
     keyword = request.args.get('keyword', '')
     time = request.args.get('time')
     if time == "last_week":
-        start_date = datetime.datetime.now() - datetime.timedelta(days=7)
+        start_date = datetime.now() - timedelta(days=7)
     elif time == "last_month":
-        start_date = datetime.datetime.now() - datetime.timedelta(days=30)
+        start_date = datetime.now() - timedelta(days=30)
     else:
-        start_date = datetime.datetime(1970, 1, 1)
-
+        start_date = datetime(1970, 1, 1)
     start_date_str = start_date.strftime('%Y-%m-%d %H:%M:%S')
     # 连接数据库
-    conn, cursor = connect_db()
+    conn = get_db()
+    cursor = conn.cursor()
+    # 构建查询条件
+    condition = "`发布时间` >= %s"
+    params = [start_date_str] * 5  # 为每个表提供一个参数
     if len(keyword) != 0:
-        # 构建查询sql语句
-        sql = f"""
-           (SELECT * FROM `新闻` WHERE `正文` LIKE '%{keyword}%' and `发布时间` >= '{start_date_str}')
-           UNION ALL
-           (SELECT * FROM `娱乐` WHERE `正文` LIKE '%{keyword}%' and `发布时间` >= '{start_date_str}')
-           UNION ALL
-           (SELECT * FROM `汽车` WHERE `正文` LIKE '%{keyword}%' and `发布时间` >= '{start_date_str}')
-           UNION ALL
-           (SELECT * FROM `科技` WHERE `正文` LIKE '%{keyword}%' and `发布时间` >= '{start_date_str}')
-           UNION ALL
-           (SELECT * FROM `财经` WHERE `正文` LIKE '%{keyword}%' and `发布时间` >= '{start_date_str}');
-        """
-    else:
-        sql = f"""
-           (SELECT * FROM `新闻` WHERE `发布时间` >= '{start_date_str}')
-           UNION ALL
-           (SELECT * FROM `娱乐` WHERE `发布时间` >= '{start_date_str}')
-           UNION ALL
-           (SELECT * FROM `汽车` WHERE `发布时间` >= '{start_date_str}')
-           UNION ALL
-           (SELECT * FROM `科技` WHERE `发布时间` >= '{start_date_str}')
-           UNION ALL
-           (SELECT * FROM `财经` WHERE `发布时间` >= '{start_date_str}');
-        """
-    cursor.execute(sql)
+        condition += " AND `正文` LIKE %s"
+        params.extend([f"%{keyword}%"] * 5)  # 为每个表提供一个参数
+    # 构建查询sql语句
+    sql = f"""
+    (SELECT * FROM `新闻` WHERE {condition})
+    UNION ALL
+    (SELECT * FROM `娱乐` WHERE {condition})
+    UNION ALL
+    (SELECT * FROM `汽车` WHERE {condition})
+    UNION ALL
+    (SELECT * FROM `科技` WHERE {condition})
+    UNION ALL
+    (SELECT * FROM `财经` WHERE {condition})
+    ORDER BY `发布时间` DESC;
+    """
+    cursor.execute(sql, params)
     data = cursor.fetchall()
     for item in data:
         data_list.append(item)
-    close_db(conn, cursor)
+    cursor.close()
     current_page = int(request.args.get('page', 1))  # 获取URL参数中的页码值，默认为1
     total_pages = len(data_list) // 30  # 计算总页数
     print(len(data_list))
@@ -165,27 +150,28 @@ def sent_lstm():
     else:
         senta_model = SentimentAnalysisModel()
         text = text.strip().replace(' ', '').replace('\n', '')
-        text_list = list(text)
+        text_list = [text]
         result_list = senta_model.senta.sentiment_classify(texts=text_list)
         result_dict = result_list[0]
         result = f'LSTM模型情感分析结果为：\n' \
-                 f'"sentiment_key":{result_dict["sentiment_key"]},\n' \
-                 f'"positive_probs":{result_dict["positive_probs"]},\n' \
-                 f'"negative_probs":{result_dict["negative_probs"]}'
+                 f'"sentiment_key": {result_dict["sentiment_key"]},\n' \
+                 f'"positive_probs": {result_dict["positive_probs"]},\n' \
+                 f'"negative_probs": {result_dict["negative_probs"]}'
 
     return jsonify({'success': True, 'result': result})
 
 def data_view(table_name):
     data_list = []
     # 连接数据库
-    conn, cursor = connect_db()
+    conn = get_db()
+    cursor = conn.cursor()
     # 查询sql语句
     sql = f"select * from `{table_name}` order by `发布时间` desc;"
     cursor.execute(sql)
     data = cursor.fetchall()
     for item in data:
         data_list.append(item)
-    close_db(conn, cursor)
+    cursor.close()
 
     current_page = int(request.args.get('page', 1))  # 获取URL参数中的页码值，默认为1
     total_pages = len(data_list) // 30  # 计算总页数
@@ -242,11 +228,12 @@ def fina_table():
 def table_info():
     response = request.get_json()
     table_name = response.get('table_name')
-    conn, cursor = connect_db()
+    conn = get_db()
+    cursor = conn.cursor()
     sql = f"select * from `{table_name}`;"
     cursor.execute(sql)
     data = cursor.fetchall()
-    close_db(conn, cursor)
+    cursor.close()
     # 将数据转换为 DataFrame
     df = pd.DataFrame(data, columns=[desc[0] for desc in cursor.description])
     df = df.replace('', pd.NA).replace('\t', pd.NA)
@@ -261,7 +248,8 @@ def table_info():
 def drop_null():
     response = request.get_json()
     table_name = response.get('table_name')
-    conn, cursor = connect_db()
+    conn = get_db()
+    cursor = conn.cursor()
     count_sql = f"SELECT COUNT(*) FROM `{table_name}` WHERE `正文` = '\t';"
     cursor.execute(count_sql)
     count = cursor.fetchone()[0]
@@ -270,7 +258,7 @@ def drop_null():
     cursor.execute(delete_sql)
     # 提交更改
     cursor.connection.commit()
-    close_db(conn, cursor)
+    cursor.close()
 
     return jsonify({'success': True, 'msg': msg})
 
@@ -350,7 +338,8 @@ def crawl_fina():
 @app.route('/job_types')
 def job_types():
     # 连接数据库
-    conn, cursor = connect_db()
+    conn = get_db()
+    cursor = conn.cursor()
 
     job_types1 = []
     num1 = []
@@ -392,7 +381,6 @@ def job_types():
         num4.append(item[1])
 
     cursor.close()
-    conn.close()
 
     chart_data1 = []
     for i in range(len(job_types1)):

@@ -17,9 +17,6 @@ import re
 import requests
 import execjs
 
-flag = True
-
-
 def translate(query):
     with open('translate.js', 'r', encoding='utf-8') as f:
         js_code = f.read()
