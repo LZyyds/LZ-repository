@@ -29,9 +29,9 @@ import os
 class SohuSpider:
     def __init__(self, url_dict):
         self.url_dict = url_dict
-    # 爬取失败的列表
-    failed_links = []
-    console = ''
+
+    failed_links = []    # 爬取失败的列表
+    console = ''        # 爬虫过程需要打印的信息
     # 保存数据的文件夹路径
     save_data_dir = r'D:\桌面\毕业设计\spider_data'
     # 数据库连接信息
@@ -82,10 +82,9 @@ class SohuSpider:
         while True:
             previous_position = driver.execute_script("return window.pageYOffset;")
             actions.send_keys(Keys.END).perform()
-            time.sleep(1)
+            time.sleep(0.5)
             current_position = driver.execute_script("return window.pageYOffset;")
-            # 添加适当的等待时间，让页面有时间进行滚动
-            time.sleep(1.7)
+            time.sleep(1.7)# 添加适当的等待时间，让页面有时间进行滚动
             # 拖到页面底部则跳出循环
             if current_position == previous_position:
                 break
@@ -226,7 +225,6 @@ class SohuSpider:
                 '发布时间': data['发布时间']
             })
         self.process_datetime_column(all_data, '发布时间')
-        # print(all_data.tail(5))
         print(f'本次爬取 【{outer_lable_list[0]}】 文章数据中有%d条重复数据' % all_data.duplicated().sum())
 
         return all_data

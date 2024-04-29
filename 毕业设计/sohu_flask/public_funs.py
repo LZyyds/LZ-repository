@@ -17,6 +17,7 @@ import re
 import requests
 import execjs
 
+
 def translate(query):
     with open('translate.js', 'r', encoding='utf-8') as f:
         js_code = f.read()
@@ -72,12 +73,12 @@ def translate(query):
     plain_text = execjs.compile(js_code).call('R', response.text)
     plain_dict = json.loads(plain_text)
     # if plain_dict['dictResult']:
-    translated_text_list = re.findall('"tgt":"(.*?)"', plain_text)
+    translated_text_list = re.findall('"tgt":"(.*?)",', plain_text)
     all_text = ''
     for translated_text in translated_text_list:
         all_text += translated_text
 
-    return all_text
+    return all_text.replace(r'\"', '"')
 
 
 def Stop_words():
@@ -117,7 +118,6 @@ def Filter_words(data_path=r'corpus.txt'):
                 continue
             if not word in stopword and len(word) > 1:
                 filter_words.append(word)
-        # print(filter_words)
         document.append(filter_words)
     return document
 

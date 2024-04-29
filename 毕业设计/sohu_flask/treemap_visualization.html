@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Awesome-pyecharts</title>
+            <script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts.min.js"></script>
+
+</head>
+<body>
+    <div id="7ed6de9edef6437eb4f1a80e5429a147" class="chart-container" style="width:900px; height:500px;"></div>
+    <script>
+        var chart_7ed6de9edef6437eb4f1a80e5429a147 = echarts.init(
+            document.getElementById('7ed6de9edef6437eb4f1a80e5429a147'), 'white', {renderer: 'canvas'});
+        var option_7ed6de9edef6437eb4f1a80e5429a147 = {
+    "animation": true,
+    "animationThreshold": 2000,
+    "animationDuration": 1000,
+    "animationEasing": "cubicOut",
+    "animationDelay": 0,
+    "animationDurationUpdate": 300,
+    "animationEasingUpdate": "cubicOut",
+    "animationDelayUpdate": 0,
+    "color": [
+        "#c23531",
+        "#2f4554",
+        "#61a0a8",
+        "#d48265",
+        "#749f83",
+        "#ca8622",
+        "#bda29a",
+        "#6e7074",
+        "#546570",
+        "#c4ccd3",
+        "#f05b72",
+        "#ef5b9c",
+        "#f47920",
+        "#905a3d",
+        "#fab27b",
+        "#2a5caa",
+        "#444693",
+        "#726930",
+        "#b2d235",
+        "#6d8346",
+        "#ac6767",
+        "#1d953f",
+        "#6950a1",
+        "#918597"
+    ],
+    "series": [
+        {
+            "type": "treemap",
+            "data": [
+                {
+                    "name": "\u57fa\u91d1",
+                    "value": 5006.0,
+                    "percentage": 0.8165568898414842
+                },
+                {
+                    "name": "\u80a1\u7968",
+                    "value": 6849.0,
+                    "percentage": 1.1171790128893977
+                },
+                {
+                    "name": "\u7ecf\u6d4e\u89e3\u7801",
+                    "value": 9370.0,
+                    "percentage": 1.5283935393157624
+                },
+                {
+                    "name": "\u6570\u7801",
+                    "value": 10728.0,
+                    "percentage": 1.7499045773510673
+                },
+                {
+                    "name": "IPO",
+                    "value": 11698.0,
+                    "percentage": 1.908126747376285
+                },
+                {
+                    "name": "\u667a\u80fd\u786c\u4ef6",
+                    "value": 13560.0,
+                    "percentage": 2.2118480675690226
+                },
+                {
+                    "name": "\u901a\u8baf",
+                    "value": 15027.0,
+                    "percentage": 2.451138710277264
+                },
+                {
+                    "name": "\u516b\u5366",
+                    "value": 19899.0,
+                    "percentage": 3.24583810446578
+                },
+                {
+                    "name": "\u8d22\u7ecf",
+                    "value": 21829.0,
+                    "percentage": 3.560651288124203
+                },
+                {
+                    "name": "\u56fd\u9645",
+                    "value": 22844.0,
+                    "percentage": 3.7262136619134774
+                },
+                {
+                    "name": "\u65b0\u80fd\u6e90",
+                    "value": 27739.0,
+                    "percentage": 4.524664715803621
+                },
+                {
+                    "name": "\u5f71\u89c6\u97f3\u4e50",
+                    "value": 31254.0,
+                    "percentage": 5.098016187596034
+                },
+                {
+                    "name": "\u4e70\u8f66\u5fc5\u770b",
+                    "value": 38514.0,
+                    "percentage": 6.282235728197148
+                },
+                {
+                    "name": "\u65f6\u653f",
+                    "value": 67396.0,
+                    "percentage": 10.993341619607804
+                },
+                {
+                    "name": "\u65b0\u8f66\u5feb\u62a5",
+                    "value": 69373.0,
+                    "percentage": 11.315821238308686
+                },
+                {
+                    "name": "\u7f51\u7edc\u7ea2\u4eba",
+                    "value": 72893.0,
+                    "percentage": 11.889988288297106
+                },
+                {
+                    "name": "\u8f66\u5e02\u884c\u60c5",
+                    "value": 75863.0,
+                    "percentage": 12.374441736724833
+                },
+                {
+                    "name": "\u660e\u661f",
+                    "value": 93220.0,
+                    "percentage": 15.205639886341022
+                }
+            ],
+            "width": "80%",
+            "height": "80%",
+            "label": {
+                "show": true,
+                "position": "inside",
+                "margin": 8
+            },
+            "upperlabel": {
+                "show": true,
+                "position": "inside",
+                "margin": 8
+            },
+            "leafDepth": 2,
+            "drillDownIcon": "\u25b6",
+            "roam": "move",
+            "nodeClick": "zoomToNode",
+            "zoomToNodeRatio": 0.1024,
+            "colorMappingBy": "index",
+            "visibleMin": 10
+        }
+    ],
+    "legend": [
+        {
+            "data": [
+                ""
+            ],
+            "selected": {
+                "": true
+            },
+            "show": true,
+            "padding": 5,
+            "itemGap": 10,
+            "itemWidth": 25,
+            "itemHeight": 14
+        }
+    ],
+    "tooltip": {
+        "show": true,
+        "trigger": "item",
+        "triggerOn": "mousemove|click",
+        "axisPointer": {
+            "type": "line"
+        },
+        "formatter":            function (params) {               return params.name + ':' + params.value + ' (' + params.data.percentage.toFixed(1) + '%)';           }       ,
+        "textStyle": {
+            "fontSize": 14
+        },
+        "borderWidth": 0
+    },
+    "title": [
+        {
+            "text": "\u680f\u76ee\u5e73\u5747\u9605\u8bfb\u6570\u91cf TreeMap",
+            "padding": 5,
+            "itemGap": 10
+        }
+    ]
+};
+        chart_7ed6de9edef6437eb4f1a80e5429a147.setOption(option_7ed6de9edef6437eb4f1a80e5429a147);
+    </script>
+</body>
+</html>

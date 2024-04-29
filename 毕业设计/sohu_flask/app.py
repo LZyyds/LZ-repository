@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, g
 from crawl_sohu import SohuSpider
 from public_funs import *
 from datetime import datetime, timedelta
+from collections import defaultdict
 import pymysql
 import matplotlib.pyplot as plt
 import io
@@ -47,14 +48,17 @@ def get_db():
                                charset='utf8mb4')
     return g.db
 
+
 def close_db(e=None):
     db = g.pop('db', None)
     if db is not None:
         db.close()
 
+
 @app.teardown_appcontext
 def teardown_db(exception):
     close_db()
+
 
 @app.route('/')
 def index():
@@ -69,6 +73,46 @@ def home():
 @app.route('/start_crawl')
 def start_crawl():
     return render_template("start_crawl.html")
+
+
+
+@app.route('/data_screen')
+def data_screen():
+    # 连接数据库
+    conn = get_db()
+    cursor = conn.cursor()
+
+    queries = [
+        ("新闻", "chart_data1"),
+        ("科技", "chart_data2"),
+        ("汽车", "chart_data3"),
+        ("财经", "chart_data4"),
+        ("娱乐", "chart_data5"),
+    ]
+
+    chart_data = defaultdict(list)
+
+    for table, chart_name in queries:
+        job_types = []
+        num = []
+        sql = f"select `栏目`,count(`栏目`) count from `{table}` group by `栏目` ORDER BY count DESC;"
+        cursor.execute(sql)
+        data = cursor.fetchall()
+
+        for item in data:
+            job_types.append(str(item[0]))
+            num.append(item[1])
+
+        for i in range(len(job_types)):
+            chart_data[chart_name].append({
+                'value': num[i],
+                'name': job_types[i]
+            })
+
+    cursor.close()
+
+    return render_template("data_screen.html", **chart_data)
+
 
 @app.route('/data_mining', methods=['POST', 'GET'])
 def data_mining():
@@ -116,6 +160,7 @@ def data_mining():
     return render_template("data_mining.html", data_list=data_list, keyword=keyword, time=time,
                            current_page=current_page, total_pages=total_pages)
 
+
 @app.route('/translate', methods=['POST', 'GET'])
 def translate_text():
     response = request.get_json()
@@ -125,6 +170,7 @@ def translate_text():
     result = translate(text)
 
     return jsonify({'success': True, 'result': result})
+
 
 @app.route('/get_keywords', methods=['POST', 'GET'])
 def get_keywords():
@@ -140,6 +186,7 @@ def get_keywords():
         result = result1 + result2 + result3
 
     return jsonify({'success': True, 'result': result})
+
 
 @app.route('/sent_lstm', methods=['POST', 'GET'])
 def sent_lstm():
@@ -160,6 +207,7 @@ def sent_lstm():
 
     return jsonify({'success': True, 'result': result})
 
+
 def data_view(table_name):
     data_list = []
     # 连接数据库
@@ -171,57 +219,11 @@ def data_view(table_name):
     data = cursor.fetchall()
     for item in data:
         data_list.append(item)
-    cursor.close()
-
+    cursor.close()  # 关闭游标
     current_page = int(request.args.get('page', 1))  # 获取URL参数中的页码值，默认为1
     total_pages = len(data_list) // 30  # 计算总页数
 
     return data_list, current_page, total_pages
-
-
-@app.route('/news')
-def news_table():
-    table_name = '新闻'
-    data_list, current_page, total_pages = data_view(table_name)
-
-    return render_template("data_view.html", data_list=data_list, table_name=table_name,
-                           current_page=current_page, total_pages=total_pages)
-
-
-@app.route('/yule')
-def yule_table():
-    table_name = '娱乐'
-    data_list, current_page, total_pages = data_view(table_name)
-
-    return render_template("data_view.html", data_list=data_list, table_name=table_name,
-                           current_page=current_page, total_pages=total_pages)
-
-
-@app.route('/car')
-def car_table():
-    table_name = '汽车'
-    data_list, current_page, total_pages = data_view(table_name)
-
-    return render_template("data_view.html", data_list=data_list, table_name=table_name,
-                           current_page=current_page, total_pages=total_pages)
-
-
-@app.route('/tech')
-def tech_table():
-    table_name = '科技'
-    data_list, current_page, total_pages = data_view(table_name)
-
-    return render_template("data_view.html", data_list=data_list, table_name=table_name,
-                           current_page=current_page, total_pages=total_pages)
-
-
-@app.route('/fina')
-def fina_table():
-    table_name = '财经'
-    data_list, current_page, total_pages = data_view(table_name)
-
-    return render_template("data_view.html", data_list=data_list, table_name=table_name,
-                           current_page=current_page, total_pages=total_pages)
 
 
 @app.route('/table_info', methods=['POST'])
@@ -250,11 +252,11 @@ def drop_null():
     table_name = response.get('table_name')
     conn = get_db()
     cursor = conn.cursor()
-    count_sql = f"SELECT COUNT(*) FROM `{table_name}` WHERE `正文` = '\t';"
+    count_sql = f"SELECT COUNT(*) FROM `{table_name}` WHERE `正文` = '\t' OR `正文` = '';"
     cursor.execute(count_sql)
     count = cursor.fetchone()[0]
     msg = f'{table_name} 表中有 {count} 条无效数据\n已删除···'
-    delete_sql = f"DELETE FROM `{table_name}` WHERE `正文` = '\t';"
+    delete_sql = f"DELETE FROM `{table_name}` WHERE `正文` = '\t' OR `正文` = '';"
     cursor.execute(delete_sql)
     # 提交更改
     cursor.connection.commit()
@@ -335,90 +337,50 @@ def crawl_fina():
     return jsonify({'success': True, 'msg': spider.console})
 
 
-@app.route('/job_types')
-def job_types():
-    # 连接数据库
-    conn = get_db()
-    cursor = conn.cursor()
+@app.route('/news')
+def news_table():
+    table_name = '新闻'
+    data_list, current_page, total_pages = data_view(table_name)
 
-    job_types1 = []
-    num1 = []
-    sql1 = "select `栏目`, count(`栏目`) count from `新闻` group by `栏目` ORDER BY count DESC;"
-    cursor.execute(sql1)
-    data1 = cursor.fetchall()
-    for item in data1:
-        job_types1.append(str(item[0]))
-        num1.append(item[1])
-
-    # 第二个查询
-    job_types2 = []
-    num2 = []
-    sql2 = "select `发布省份`, count(`发布省份`) count from `娱乐` group by `发布省份` ORDER BY count DESC LIMIT 7;"
-    cursor.execute(sql2)
-    data2 = cursor.fetchall()
-    for item in data2:
-        job_types2.append(str(item[0]))
-        num2.append(item[1])
-
-    # 第三个查询
-    job_types3 = []
-    num3 = []
-    sql3 = "select `栏目`, count(`栏目`) count from `财经` group by `栏目` ORDER BY count DESC;"
-    cursor.execute(sql3)
-    data3 = cursor.fetchall()
-    for item in data3:
-        job_types3.append(str(item[0]))
-        num3.append(item[1])
-
-    # 第四个查询
-    job_types4 = []
-    num4 = []
-    sql4 = "select `栏目`, count(`栏目`) count from `汽车` group by `栏目` ORDER BY count DESC;"
-    cursor.execute(sql4)
-    data4 = cursor.fetchall()
-    for item in data4:
-        job_types4.append(str(item[0]))
-        num4.append(item[1])
-
-    cursor.close()
-
-    chart_data1 = []
-    for i in range(len(job_types1)):
-        chart_data1.append({
-            'value': num1[i],
-            'name': job_types1[i]
-        })
-
-    chart_data2 = []
-    for i in range(len(job_types2)):
-        chart_data2.append({
-            'value': num2[i],
-            'name': job_types2[i]
-        })
-
-    chart_data3 = []
-    for i in range(len(job_types3)):
-        chart_data3.append({
-            'value': num3[i],
-            'name': job_types3[i]
-        })
-
-    chart_data4 = []
-    for i in range(len(job_types4)):
-        chart_data4.append({
-            'value': num4[i],
-            'name': job_types4[i]
-        })
-
-    return render_template("job_types.html", chart_data1=chart_data1, chart_data2=chart_data2,
-                           chart_data3=chart_data3, chart_data4=chart_data4)
+    return render_template("data_view.html", data_list=data_list, table_name=table_name,
+                           current_page=current_page, total_pages=total_pages)
 
 
-# 添加数据的路由
-# noinspection PyUnresolvedReferences
-@app.route('/add', methods=['GET', 'POST'])
-def add():
-    return render_template('add.html')
+@app.route('/yule')
+def yule_table():
+    table_name = '娱乐'
+    data_list, current_page, total_pages = data_view(table_name)
+
+    return render_template("data_view.html", data_list=data_list, table_name=table_name,
+                           current_page=current_page, total_pages=total_pages)
+
+
+@app.route('/car')
+def car_table():
+    table_name = '汽车'
+    data_list, current_page, total_pages = data_view(table_name)
+
+    return render_template("data_view.html", data_list=data_list, table_name=table_name,
+                           current_page=current_page, total_pages=total_pages)
+
+
+@app.route('/tech')
+def tech_table():
+    table_name = '科技'
+    data_list, current_page, total_pages = data_view(table_name)
+
+    return render_template("data_view.html", data_list=data_list, table_name=table_name,
+                           current_page=current_page, total_pages=total_pages)
+
+
+@app.route('/fina')
+def fina_table():
+    table_name = '财经'
+    data_list, current_page, total_pages = data_view(table_name)
+
+    return render_template("data_view.html", data_list=data_list, table_name=table_name,
+                           current_page=current_page, total_pages=total_pages)
+
 
 
 def show_popup(message):
