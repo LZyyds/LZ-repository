@@ -43,11 +43,15 @@ Terminal —》export http_proxy=http://px-local.sosobtc.com:xxxx —> pip insta
 
 pip清华镜像源：https://pypi.tuna.tsinghua.edu.cn/simple
 
+# puppeteer 服务
+PUPPETEER_SERVER = os.getenv('PUPPETEER_SERVER', 'http://go-rod.local.org:xxxx')
+
 
 Scrapy：
 1、cd 到目标文件夹，如pycharmproject下
 2、scrapy startproject 项目名
 3、cd 进入项目名文件夹，scrapy genspider 爬虫名 起始url地址
+4、执行单个spider文件scrapy runspider xxx.py --nolog
 
 Scrapy在pycharm的调试实现：
 调试设置
@@ -73,6 +77,7 @@ mongodb待优化：http://t.csdnimg.cn/mKZ8O
 
 
 Redis安装：http://t.csdnimg.cn/dLi6C
+常用命令：http://t.csdnimg.cn/DjSh0	哈希命令：http://t.csdnimg.cn/MhJHj
 To start redis now and restart at login:
   brew services start redis
 Or, if you don't want/need a background service you can just run:
@@ -80,6 +85,33 @@ Or, if you don't want/need a background service you can just run:
 ￼
 
 Scrapy-redis项目：http://t.csdnimg.cn/kiQAG
+
+def insert_crawl_history(self, mark, size=100):
+    """
+        记录爬取请求历史
+        mark 可唯一识别请求的信息	,一般为link链接
+        size 记录历史有序集合的大小
+    """
+    self.server.zadd(self.name + ':history_list', {mark: int(time.time())})
+    self.server.zremrangebyrank(self.name + ':history_list', 0, -size-1)
+
+def is_exist_crawl_history(self, mark):
+    """
+        是否存在于最近爬取历史中
+        mark 可唯一识别请求的信息
+    """
+    result = self.server.zscore(self.name + ':history_list', mark)
+    return result
+
+* zremrangebyrank 是 Redis 的一个命令，用于根据排名范围移除有序集合中的元素。
+* 0 表示起始排名，即有序集合中排名最小的元素。
+* -size-1 表示结束排名，它是一个负数。在 Redis 中，排名是从 0 开始的，负数表示从有序集合的末尾开始计数。因此，-size-1 表示有序集合中排名第 size 个元素之前的所有元素。
+综合起来，self.server.zremrangebyrank(self.name + ':history_list', 0, -size-1) 的作用是：
+* 从有序集合 self.name + ':history_list' 中，移除排名在 0 到 size-1 之间的元素。
+* 换句话说，它保留了有序集合中排名最高的 size 个元素，而移除了排名较低的元素。
+* 这样做的目的可能是为了控制有序集合的大小，只保留最近的一定数量的历史记录，而移除较早的记录以节省空间。
+* zscore 是 Redis 的一个命令，用于获取有序集合中指定成员的分数（score）。如果 mark 存在于有序集合中，zscore 命令将返回其对应的分数；如果 mark 不存在，则返回 None。最后，函数根据返回结果判断 mark 是否存在于最近爬取的历史记录中。
+
 
 设计模式    https://refactoringguru.cn/design-patterns
 
@@ -203,3 +235,130 @@ with ThreadPoolExecutor(max_workers=4) as executor:
 6. 编程复杂度:
     * 异步编程可能稍微更复杂一些,因为需要理解协程、事件循环和 async/await 语法。但是,Python 的 asyncio 库提供了较好的抽象和工具,使得异步编程变得更加简单。
     * 多线程编程相对更直观,但需要注意线程安全和同步问题。ThreadPoolExecutor 简化了线程池的使用,但仍需要注意线程之间的通信和协调。
+
+
+单例模式
+class Singleton(object):
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(Singleton, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+
+在 Python 中，*args 和 **kwargs 是用于处理可变数量参数的特殊语法。（可省略）
+* *args 表示任意数量的位置参数（positional arguments），它允许函数接受任意数量的非关键字参数。在函数内部，args 是一个元组（tuple），包含所有传递给函数的非关键字参数。
+* **kwargs 表示任意数量的关键字参数（keyword arguments），它允许函数接受任意数量的关键字参数。在函数内部，kwargs 是一个字典（dict），包含所有传递给函数的关键字参数，其中参数名作为字典的键，参数值作为字典的值。
+1. 参数传递：当我们创建 Singleton 类的实例时，可能会传递各种参数。使用 *args 和 **kwargs 可以接受任意数量的位置参数和关键字参数，确保 __new__ 方法能够处理所有传递给类的参数。
+2. 兼容性：通过使用 *args 和 **kwargs，__new__ 方法可以与任何子类兼容。无论子类的 __init__ 方法定义了什么参数，__new__ 方法都能够接受并传递这些参数。
+3. 透明性：对于 Singleton 类的使用者来说，他们不需要关心 __new__ 方法的内部实现细节。使用 *args 和 **kwargs 可以使 __new__ 方法对外部透明，就像普通的类实例化一样。
+4. 向父类传递参数：在 __new__ 方法中，我们可能需要调用父类的 __new__ 方法来创建实例。使用 *args 和 **kwargs 可以将所有接收到的参数传递给父类的 __new__ 方法，确保父类能够正确地创建实例。
+
+使用案例
+class SentimentAnalysisModel:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.senta = hub.Module(name="senta_lstm")
+        return cls._instanc
+
+def sent_lstm():
+    response = request.get_json()
+    senta_model = SentimentAnalysisModel()
+    result_list = senta_model.senta.sentiment_classify(texts=text_list)
+
+1. _instance = None：定义了一个类属性 _instance，用于存储类的单例实例，初始值为 None。
+2. def __new__(cls):：重写了 __new__ 方法，该方法是类的特殊方法，用于创建类的实例。通过重写 __new__ 方法，可以控制类实例的创建过程。
+3. if cls._instance is None:：检查类属性 _instance 是否为 None。如果为 None，表示还没有创建过类的实例，需要创建一个新的实例。
+4. cls._instance = super().__new__(cls)：使用 super().__new__(cls) 调用父类的 __new__ 方法创建一个新的实例，并将其赋值给类属性 _instance。这样可以确保只创建一个实例。
+5. cls._instance.senta = hub.Module(name="senta_lstm")：在新创建的实例上设置 senta 属性，将其初始化为一个名为 "senta_lstm" 的 hub.Module 对象。这可能是一个情感分析模型。
+6. return cls._instance：返回类属性 _instance，即类的单例实例。
+通过这种方式，无论多少次调用 SentimentAnalysisModel()，都会返回同一个实例，实现了单例模式。
+现在，让我们讨论一下 cls 和 self 的区别：
+* cls 是指代类本身，通常用作类方法的第一个参数。在类方法中，cls 表示当前类，可以通过 cls 访问类属性和调用其他类方法。
+* self 是指代类的实例，通常用作实例方法的第一个参数。在实例方法中，self 表示当前实例，可以通过 self 访问实例属性和调用其他实例方法。
+
+对比普通模式
+class SentimentAnalysisModel:
+    def __init__(self):
+        self.senta = hub.Module(name="senta_lstm")
+在这种情况下，每次调用 SentimentAnalysisModel() 都会执行 __init__ 方法，创建一个新的实例，并在该实例上初始化 senta 属性。因此，每次调用都会返回不同的实例。
+
+
+多例模式（Multiton Pattern）
+是单例模式的变体，其目的是允许一个类创建多个实例，但实例的数量是有限和受控的。在多例模式下，可以根据某些条件或参数来创建和管理多个实例。
+
+class Logger:
+    _instances = {}
+
+    def __new__(cls, name):
+        if name not in cls._instances:
+            cls._instances[name] = super().__new__(cls)
+        return cls._instances[name]
+
+    def __init__(self, name):
+        self.name = name
+
+在这个示例中，Logger 类允许根据传递的 name 参数创建多个实例。通过在 __new__ 方法中检查 name 是否已经存在于 _instances 字典中，可以控制实例的创建。如果 name 已经存在，则返回对应的实例；否则，创建一个新的实例并将其添加到 _instances 字典中。
+多例模式在某些场景下很有用，例如需要根据不同的配置创建多个日志记录器实例，或者需要管理多个数据库连接实例等。
+
+
+获取标准格式时间（东八区）
+time.time() 返回的是当前的Unix时间戳,它表示从1970年1月1日UTC时间凌晨开始到现在经过的秒数。这个时间戳是一个全球统一的值,与时区无关。
+
+import time
+from datetime import datetime, timedelta
+# 方法一：utc国际标准时间转换
+formatted_time = time.strftime("%Y-%m-%d %H:%M:%S", (datetime.utcnow() + timedelta(hours=8)).timetuple())
+print(formatted_time)
+
+# 方法二：时间戳转换
+formatted_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600))
+print(formatted_time)
+
+
+SQL注入问题
+一、escape_string() 转义
+通过一个具体的例子来说明 escape_string() 函数如何防止 SQL 注入攻击。
+假设我们有一个用户登录的场景,用户需要输入用户名和密码进行身份验证。我们使用以下的 SQL 查询来检查用户的凭据:
+username = "admin"
+password = "' OR '1'='1"
+
+query = "SELECT * FROM users WHERE username='{}' AND password='{}'".format(username, password)
+在这个例子中,用户输入了一个恶意的密码 ' OR '1'='1,目的是绕过身份验证。如果我们直接将用户输入拼接到 SQL 查询中,最终生成的查询语句将变成:
+SELECT * FROM users WHERE username='admin' AND password='' OR '1'='1'
+
+使用 escape_string() 函数来防止这种攻击:
+username = "admin"
+password = "' OR '1'='1"
+username = pymysql.escape_string(username)
+password = pymysql.escape_string(password)
+
+query = "SELECT * FROM users WHERE username='{}' AND password='{}'".format(username, password)
+通过使用 escape_string() 函数对用户输入进行转义,特殊字符会被转义为安全的形式。转义后的查询语句将变成:
+SELECT * FROM users WHERE username='admin' AND password='\' OR \'1\'=\'1'
+
+二、cursor.execute()参数化
+虽然 escape_string() 函数可以转义特殊字符,但是在某些情况下,这种方式仍然存在 SQL 注入的风险。
+举个例子,假设 title 的值为 " OR 1=1 --"。经过 escape_string() 转义后,title 的值变为 \" OR 1=1 --\"。当将其拼接到查询语句中时,最终的查询语句会变成:
+SELECT id FROM table_name
+WHERE MATCH (title) AGAINST ('"" OR 1=1 --""' IN BOOLEAN MODE)
+这个查询语句中,1=1 条件始终为真,并且后面的 -- 会注释掉查询语句的剩余部分。因此,这个查询实际上等同于:
+SELECT id FROM table_name WHERE 1=1
+
+安全的方式,可以有效防止 SQL 注入攻击。
+
+title = pymysql.escape_string(title)
+cursor = self.client.cursor()
+
+query = """
+SELECT id FROM table
+WHERE MATCH (title) AGAINST (%s IN BOOLEAN MODE)
+""".
+cursor.execute(query, (f'"{title}"',))
+result = cursor.fetchone()
+
+
+

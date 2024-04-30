@@ -33,67 +33,74 @@
 - [ ] command+shift+g：通过路径打开目标所在文件夹
 - [ ] command+shift+4/5:高级截图
 
-## 代理设置
-### 1、全局代理：
-Wi-Fi —》网络偏好设置 —〉高级 —》 代理 —〉网页代理/安全网络代理 —> 配置域名和端口
-### 2、Google 网页插件（仅Google浏览器代理）：
-插件商店 —》安装proxy switchyomega插件 —> 配置域名和端口 —>选择打开模式
-### 3、python终端：
-Terminal —》export http_proxy=http://px-local.sosobtc.com:xxxx —> pip install xxx
+### 代理设置
+      1、全局代理：
+      Wi-Fi —》网络偏好设置 —〉高级 —》 代理 —〉网页代理/安全网络代理 —> 配置域名和端口
+      2、Google 网页插件（仅Google浏览器代理）：
+      插件商店 —》安装proxy switchyomega插件 —> 配置域名和端口 —>选择打开模式
+      3、python终端：
+      Terminal —》export http_proxy=http://px-local.sosobtc.com:xxxx —> pip install xxx
 
 pip清华镜像源：https://pypi.tuna.tsinghua.edu.cn/simple
 
 
 ## Scrapy：
-1、cd 到目标文件夹，如pycharmproject下
-2、scrapy startproject 项目名
-3、cd 进入项目名文件夹，scrapy genspider 爬虫名 起始url地址
+      1、cd 到目标文件夹，如pycharmproject下
+      2、scrapy startproject 项目名
+      3、cd 进入项目名文件夹，scrapy genspider 爬虫名 起始url地址
+      4、执行单个spider文件scrapy runspider xxx.py --nolog
 
-## Scrapy在pycharm的调试实现：
+### Scrapy在pycharm的调试实现：
 调试设置
 打开pycharm工程调试配置界面（Run -> Edit Configurations）。
 
-### 1、选择工程。
-选择调试工程 xxx_spider，官方文档提供的示例工程。
-设置执行脚本（Script）。设置为 H:\Python\Python36\Lib\site-packages\scrapy\cmdline.py， cmdline.py 是 scrapy 提供的命令行调用脚本，此处将启动脚本设置为 cmdline.py，将需要调试的工程作为参数传递给此脚本。
-（Mac版的 cmdline.py 路径为/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/scrapy/cmdline.py）
-
-### 2、设置执行脚本参数（Script parameters）。
-设置为 crawl ’xxx‘，参数命令参照官方文档提供的爬虫执行命令：scrapy crawl ’xxx‘，与之不同的是设置参数时不包含 scrapy。（’xxx‘为spider的唯一name）
-
-### 3、设置工作目录（Work Directory）。
-设置为工程根目录/Users/colink/PycharmProjects/news-flash，根目录下包含爬虫配置文件 scrapy.cfg。
+      ### 1、选择工程。
+      选择调试工程 xxx_spider，官方文档提供的示例工程。
+      设置执行脚本（Script）。设置为 H:\Python\Python36\Lib\site-packages\scrapy\cmdline.py， cmdline.py 是 scrapy 提供的命令行调用脚本，此处将启动脚本设置为 cmdline.py，将需要调试的工程作为参数传递给此脚本。
+      （Mac版的 cmdline.py 路径为/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/scrapy/cmdline.py）
+      
+      ### 2、设置执行脚本参数（Script parameters）。
+      设置为 crawl ’xxx‘，参数命令参照官方文档提供的爬虫执行命令：scrapy crawl ’xxx‘，与之不同的是设置参数时不包含 scrapy。（’xxx‘为spider的唯一name）
+      
+      ### 3、设置工作目录（Work Directory）。
+      设置为工程根目录/Users/colink/PycharmProjects/news-flash，根目录下包含爬虫配置文件 scrapy.cfg。
 ￼
 
 ### pycharm操作mongodb：http://t.csdnimg.cn/SeJGJ
 mongodb命令大全：http://t.csdnimg.cn/gWuPq
+
 mongodb待优化：http://t.csdnimg.cn/mKZ8O
-查看端口命令：  lsof -i:27017
-* 进入mongodb：mongod --dbpath /usr/local/mongodb/data > 终端输入mongo
-* 退出mongodb：> use admin > db.shutdownServer({force : true})
+
+      查看端口命令：  lsof -i:27017
+      * 进入mongodb：mongod --dbpath /usr/local/mongodb/data > 终端输入mongo
+      * 退出mongodb：> use admin > db.shutdownServer({force : true})
 
 
 ### Redis安装：http://t.csdnimg.cn/dLi6C
-To start redis now and restart at login:
-  brew services start redis
-Or, if you don't want/need a background service you can just run:
-  /opt/homebrew/opt/redis/bin/redis-server /opt/homebrew/etc/redis.conf
+常用命令：http://t.csdnimg.cn/DjSh0	
+
+哈希命令：http://t.csdnimg.cn/MhJHj
+
+      To start redis now and restart at login:
+        brew services start redis
+      Or, if you don't want/need a background service you can just run:
+        /opt/homebrew/opt/redis/bin/redis-server /opt/homebrew/etc/redis.conf
 ￼
 
-## Scrapy-redis项目：http://t.csdnimg.cn/kiQAG
+### Scrapy-redis项目：http://t.csdnimg.cn/kiQAG
 
 ## 设计模式 https://refactoringguru.cn/design-patterns
 
-## 浅拷贝（shallow copy）和深拷贝（deep copy）
+### 浅拷贝（shallow copy）和深拷贝（deep copy）
 在 Python 中，浅拷贝（shallow copy）和深拷贝（deep copy）是两种不同的拷贝方式，它们在处理对象的引用和嵌套对象时有所不同。
-### 1. 浅拷贝（Shallow Copy）：
+#### 1. 浅拷贝（Shallow Copy）：
     * 浅拷贝创建一个新的对象，但是对于对象内部的引用类型（如列表、字典等），浅拷贝只会复制引用，而不会创建新的对象。
     * 也就是说，原始对象和浅拷贝对象共享相同的嵌套对象引用。
     * 对浅拷贝对象进行修改时，如果修改的是不可变对象（如数字、字符串等），则不会影响原始对象；但如果修改的是可变对象（如列表、字典等），则会影响原始对象和所有浅拷贝对象。
     * 可以使用切片操作 [:] 或者 list() 函数来创建列表的浅拷贝，使用 dict() 函数来创建字典的浅拷贝。
 				shallow_copy = original_list[:]  # 或者 shallow_copy = list(original_list)
 
-### 2. 深拷贝（Deep Copy）：
+#### 2. 深拷贝（Deep Copy）：
     * 深拷贝创建一个新的对象，并且递归地复制原始对象内部的所有嵌套对象，创建完全独立的副本。
     * 深拷贝后的对象与原始对象之间没有任何引用共享，修改深拷贝对象不会影响原始对象。
     * 可以使用 copy 模块的 deepcopy() 函数来创建对象的深拷贝。
@@ -102,7 +109,7 @@ Or, if you don't want/need a background service you can just run:
 当你修改 shallow_copy 时，实际上是在修改 original_list，因为它们引用相同的对象。同样地，修改 original_list 也会反映在 shallow_copy 上。
 修改 shallow_copy 的第一个元素不会影响 original_list，因为它们是不同的对象。但是，对于嵌套的可变对象（如列表 [2, 3]），浅拷贝仍然共享相同的引用，修改嵌套对象会影响到原始对象和浅拷贝对象。
 
-## DNS (Domain Name System) 解析
+### DNS (Domain Name System) 解析
 是将域名转换为 IP 地址的过程。以下是 DNS 解析的流程,分点总结:
 1. 浏览器缓存查询
     * 浏览器首先检查自己的缓存中是否存在已解析过的域名对应的 IP 地址。
@@ -132,7 +139,7 @@ Or, if you don't want/need a background service you can just run:
     * 操作系统将 IP 地址返回给浏览器,浏览器使用该 IP 地址与 Web 服务器建立连接。
 
 
-## asyncio异步编程：
+### asyncio异步编程：
 基础概念：http://t.csdnimg.cn/JANQr
 
 	import asyncio
@@ -149,7 +156,7 @@ Or, if you don't want/need a background service you can just run:
 	    await asyncio.wait(tasks)
 		# 或者# result1, result2 = await asyncio.gather(task1(), task2())
 
-asyncio.run(main())
+      asyncio.run(main())
 
 在这个示例中:
 1. 我们定义了两个协程函数 task1() 和 task2(),它们分别打印一条消息并使用 asyncio.sleep() 模拟等待1秒钟。
@@ -204,3 +211,133 @@ get_event_loop() 函数的作用是获取当前的事件循环,可以通过该�
 6. 编程复杂度:
     * 异步编程可能稍微更复杂一些,因为需要理解协程、事件循环和 async/await 语法。但是,Python 的 asyncio 库提供了较好的抽象和工具,使得异步编程变得更加简单。
     * 多线程编程相对更直观,但需要注意线程安全和同步问题。ThreadPoolExecutor 简化了线程池的使用,但仍需要注意线程之间的通信和协调。
+
+### 单例模式
+      class Singleton(object):
+          _instance = None
+      
+          def __new__(cls, *args, **kwargs):
+              if not cls._instance:
+                  cls._instance = super(Singleton, cls).__new__(cls, *args, **kwargs)
+              return cls._instance
+
+在 Python 中，*args 和 **kwargs 是用于处理可变数量参数的特殊语法。（可省略）
+* *args 表示任意数量的位置参数（positional arguments），它允许函数接受任意数量的非关键字参数。在函数内部，args 是一个元组（tuple），包含所有传递给函数的非关键字参数。
+* **kwargs 表示任意数量的关键字参数（keyword arguments），它允许函数接受任意数量的关键字参数。在函数内部，kwargs 是一个字典（dict），包含所有传递给函数的关键字参数，其中参数名作为字典的键，参数值作为字典的值。
+1. 参数传递：当我们创建 Singleton 类的实例时，可能会传递各种参数。使用 *args 和 **kwargs 可以接受任意数量的位置参数和关键字参数，确保 __new__ 方法能够处理所有传递给类的参数。
+2. 兼容性：通过使用 *args 和 **kwargs，__new__ 方法可以与任何子类兼容。无论子类的 __init__ 方法定义了什么参数，__new__ 方法都能够接受并传递这些参数。
+3. 透明性：对于 Singleton 类的使用者来说，他们不需要关心 __new__ 方法的内部实现细节。使用 *args 和 **kwargs 可以使 __new__ 方法对外部透明，就像普通的类实例化一样。
+4. 向父类传递参数：在 __new__ 方法中，我们可能需要调用父类的 __new__ 方法来创建实例。使用 *args 和 **kwargs 可以将所有接收到的参数传递给父类的 __new__ 方法，确保父类能够正确地创建实例。
+
+#### 使用案例
+      class SentimentAnalysisModel:
+          _instance = None
+      
+          def __new__(cls):
+              if cls._instance is None:
+                  cls._instance = super().__new__(cls)
+                  cls._instance.senta = hub.Module(name="senta_lstm")
+              return cls._instanc
+
+      def sent_lstm():
+          response = request.get_json()
+          senta_model = SentimentAnalysisModel()
+          result_list = senta_model.senta.sentiment_classify(texts=text_list)
+
+1. _instance = None：定义了一个类属性 _instance，用于存储类的单例实例，初始值为 None。
+2. def __new__(cls):：重写了 __new__ 方法，该方法是类的特殊方法，用于创建类的实例。通过重写 __new__ 方法，可以控制类实例的创建过程。
+3. if cls._instance is None:：检查类属性 _instance 是否为 None。如果为 None，表示还没有创建过类的实例，需要创建一个新的实例。
+4. cls._instance = super().__new__(cls)：使用 super().__new__(cls) 调用父类的 __new__ 方法创建一个新的实例，并将其赋值给类属性 _instance。这样可以确保只创建一个实例。
+5. cls._instance.senta = hub.Module(name="senta_lstm")：在新创建的实例上设置 senta 属性，将其初始化为一个名为 "senta_lstm" 的 hub.Module 对象。这可能是一个情感分析模型。
+6. return cls._instance：返回类属性 _instance，即类的单例实例。
+通过这种方式，无论多少次调用 SentimentAnalysisModel()，都会返回同一个实例，实现了单例模式。
+现在，让我们讨论一下 cls 和 self 的区别：
+* cls 是指代类本身，通常用作类方法的第一个参数。在类方法中，cls 表示当前类，可以通过 cls 访问类属性和调用其他类方法。
+* self 是指代类的实例，通常用作实例方法的第一个参数。在实例方法中，self 表示当前实例，可以通过 self 访问实例属性和调用其他实例方法。
+
+#### 对比普通模式
+
+      class SentimentAnalysisModel:
+          def __init__(self):
+              self.senta = hub.Module(name="senta_lstm")
+在这种情况下，每次调用 SentimentAnalysisModel() 都会执行 __init__ 方法，创建一个新的实例，并在该实例上初始化 senta 属性。因此，每次调用都会返回不同的实例。
+
+
+#### 多例模式（Multiton Pattern）
+是单例模式的变体，其目的是允许一个类创建多个实例，但实例的数量是有限和受控的。在多例模式下，可以根据某些条件或参数来创建和管理多个实例。
+
+      class Logger:
+          _instances = {}
+      
+          def __new__(cls, name):
+              if name not in cls._instances:
+                  cls._instances[name] = super().__new__(cls)
+              return cls._instances[name]
+      
+          def __init__(self, name):
+              self.name = name
+
+在这个示例中，Logger 类允许根据传递的 name 参数创建多个实例。通过在 __new__ 方法中检查 name 是否已经存在于 _instances 字典中，可以控制实例的创建。如果 name 已经存在，则返回对应的实例；否则，创建一个新的实例并将其添加到 _instances 字典中。
+多例模式在某些场景下很有用，例如需要根据不同的配置创建多个日志记录器实例，或者需要管理多个数据库连接实例等。
+
+
+### 获取标准格式时间（东八区）
+time.time() 返回的是当前的Unix时间戳,它表示从1970年1月1日UTC时间凌晨开始到现在经过的秒数。这个时间戳是一个全球统一的值,与时区无关。
+
+      import time
+      from datetime import datetime, timedelta
+      # 方法一：utc国际标准时间转换
+      formatted_time = time.strftime("%Y-%m-%d %H:%M:%S", (datetime.utcnow() + timedelta(hours=8)).timetuple())
+      print(formatted_time)
+      
+      # 方法二：时间戳转换
+      formatted_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600))
+      print(formatted_time)
+
+
+### SQL注入问题
+#### 一、escape_string() 转义
+通过一个具体的例子来说明 escape_string() 函数如何防止 SQL 注入攻击。
+假设我们有一个用户登录的场景,用户需要输入用户名和密码进行身份验证。我们使用以下的 SQL 查询来检查用户的凭据:
+
+      username = "admin"
+      password = "' OR '1'='1"
+      
+      query = "SELECT * FROM users WHERE username='{}' AND password='{}'".format(username, password)
+在这个例子中,用户输入了一个恶意的密码 ' OR '1'='1,目的是绕过身份验证。如果我们直接将用户输入拼接到 SQL 查询中,最终生成的查询语句将变成:
+
+      SELECT * FROM users WHERE username='admin' AND password='' OR '1'='1'
+
+使用 escape_string() 函数来防止这种攻击:
+
+      username = "admin"
+      password = "' OR '1'='1"
+      username = pymysql.escape_string(username)
+      password = pymysql.escape_string(password)
+      
+      query = "SELECT * FROM users WHERE username='{}' AND password='{}'".format(username, password)
+通过使用 escape_string() 函数对用户输入进行转义,特殊字符会被转义为安全的形式。转义后的查询语句将变成:
+
+      SELECT * FROM users WHERE username='admin' AND password='\' OR \'1\'=\'1'
+
+#### 二、cursor.execute()参数化
+虽然 escape_string() 函数可以转义特殊字符,但是在某些情况下,这种方式仍然存在 SQL 注入的风险。
+举个例子,假设 title 的值为 " OR 1=1 --"。经过 escape_string() 转义后,title 的值变为 \" OR 1=1 --\"。当将其拼接到查询语句中时,最终的查询语句会变成:
+
+      SELECT id FROM table_name
+      WHERE MATCH (title) AGAINST ('"" OR 1=1 --""' IN BOOLEAN MODE)
+
+这个查询语句中,1=1 条件始终为真,并且后面的 -- 会注释掉查询语句的剩余部分。因此,这个查询实际上等同于:
+SELECT id FROM table_name WHERE 1=1
+
+### 安全的方式,可以有效防止 SQL 注入攻击。
+
+      title = pymysql.escape_string(title)
+      cursor = self.client.cursor()
+      
+      query = """
+      SELECT id FROM table
+      WHERE MATCH (title) AGAINST (%s IN BOOLEAN MODE)
+      """.
+      cursor.execute(query, (f'"{title}"',))
+      result = cursor.fetchone()
