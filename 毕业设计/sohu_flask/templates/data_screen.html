@@ -70,10 +70,10 @@
         <div class="container chart-container" style="width: 110%; height: 100%;">
           <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
           <div id="main1" class="chart" style="width: 500px; height: 500px;"></div>
-          <div id="main2" class="chart" style="width: 600px; height: 500px;"></div>
+          <div id="main2" class="chart" style="width: 500px; height: 500px;"></div>
           <div id="main3" class="chart" style="width: 500px; height: 400px;"></div>
-          <div id="main4" class="chart" style="width: 600px; height: 450px;"></div>
-          <div id="main5" class="chart" style="width: 600px; height: 450px;"></div>
+          <div id="main4" class="chart" style="width: 600px; height: 400px;"></div>
+<!--          <div id="main5" class="chart" style="width: 600px; height: 450px;"></div>-->
         </div>
       </section><!-- End Counts Section -->
     </div>
@@ -85,7 +85,6 @@
     var chartData2 = JSON.parse('{{ chart_data2 | tojson | safe }}');
     var chartData3 = JSON.parse('{{ chart_data3 | tojson | safe }}');
     var chartData4 = JSON.parse('{{ chart_data4 | tojson | safe }}');
-    var chartData5 = JSON.parse('{{ chart_data5 | tojson | safe }}');
 
     var colors = ['#F8B195', '#F67280', '#C06C84', '#6C5B7B', '#355C7D', '#F8B195', '#F67280', '#C06C84', '#6C5B7B', '#355C7D'];
 
@@ -114,15 +113,15 @@
       useDirtyRect: false
     });
 
-    var dom5 = document.getElementById('main5');
-    var myChart5 = echarts.init(dom5, null, {
-      renderer: 'canvas',
-      useDirtyRect: false
-    });
+    // var dom5 = document.getElementById('main5');
+    // var myChart5 = echarts.init(dom5, null, {
+    //   renderer: 'canvas',
+    //   useDirtyRect: false
+    // });
 
     var option1 = {
        title:{
-         text:'Nightingale Chart 1',// 标题内容
+         text:'新闻各栏目文章占比',// 标题内容
          left:'center' // 标题居中显示
        },
       legend: {
@@ -149,13 +148,21 @@
           },
           data: chartData1,
           label: {
-            formatter: '{b} ({d}%)'  // 显示名称和百分比
+            formatter: '{b}\n({c})\n({d}%)',  // 显示名称和百分比
+            textStyle:{
+                   fontSize:15, // 调整字体大小
+                   fontWeight:'bold'  // 设置加粗样式
+            }
           }
         }
       ]
     };
 
     var option2 = {
+       title:{
+         text:'娱乐各栏目文章总数',// 标题内容
+         left:'center' // 标题居中显示
+       },
       xAxis: {
         data: chartData2.map(function(item) {
           return item.name;
@@ -163,13 +170,21 @@
         axisLabel: {
           interval: 0, // 强制显示所有标签
           rotate: 30, // 倾斜角度
-          formatter: '{value}' // 显示数据项名称
+          formatter: '{value}', // 显示数据项名称
+          textStyle:{
+                   fontSize:15, // 调整字体大小
+                   fontWeight:'bold'  // 设置加粗样式
+          }
         }
       },
       yAxis: {
         type: 'value',
         axisLabel: {
-          formatter: '{value}' // 显示数据项的值
+          formatter: '{value}', // 显示数据项的值
+           textStyle:{
+                   fontSize:15, // 调整字体大小
+                   fontWeight:'bold'  // 设置加粗样式
+           }
         }
       },
       series: [
@@ -187,6 +202,10 @@
             show: true,
             position: 'top',
             formatter: '{c}', // {c} 表示数据项的值
+            textStyle:{
+                   fontSize:15, // 调整字体大小
+                   fontWeight:'bold'  // 设置加粗样式
+            }
           }
         }
       ]
@@ -194,6 +213,10 @@
 
 
     var option3 = {
+    title:{
+         text:'汽车各栏目文章总数',// 标题内容
+         left:'center' // 标题居中显示
+       },
     legend: {
       top: 'bottom'
     },
@@ -207,7 +230,7 @@
       }
     },
     series: [{
-      name: 'Nightingale Chart 2',
+      name: 'Nightingale Chart 3',
       type: 'funnel',
       width: '80%',
       height: '80%',
@@ -216,13 +239,21 @@
       label: {
         show: true,
         position: 'inside',
-        formatter: '{b}\n{c}'
+        formatter: '{b}\n{c}',
+        textStyle:{
+                   fontSize:15, // 调整字体大小
+                   fontWeight:'bold'  // 设置加粗样式
+        }
       },
       data: chartData3
       }]
     };
 
     var option4 = {
+    title:{
+         text:'财经各栏目文章占比',// 标题内容
+         left:'center' // 标题居中显示
+       },
       legend: {
         top: 'bottom'
       },
@@ -247,42 +278,46 @@
           },
           data: chartData4,
           label: {
-            formatter: '{b} ({d}%)'  // 显示名称和百分比
+            formatter: '{b}\n({c})\n({d}%)',  // 显示名称和百分比
+            textStyle:{
+                   fontSize:15, // 调整字体大小
+                   fontWeight:'bold'  // 设置加粗样式
+            }
           }
         }
       ]
     };
         // options2的玫瑰图
-    var option5= {
-      legend: {
-        top: 'bottom'
-      },
-      toolbox: {
-        show: true,
-        feature: {
-          mark: { show: true },
-          dataView: { show: true, readOnly: false },
-          restore: { show: true },
-          saveAsImage: { show: true }
-        }
-      },
-      series: [
-        {
-          name: 'Nightingale Chart 5',
-          type: 'pie',
-          radius: [20, '45%'],
-          center: ['50%', '50%'],
-          roseType: 'area',
-          itemStyle: {
-            borderRadius: 8
-          },
-          data: chartData5,
-          label: {
-            formatter: '{b} ({d}%)'  // 显示名称和百分比
-          }
-        }
-      ]
-    };
+    // var option5= {
+    //   legend: {
+    //     top: 'bottom'
+    //   },
+    //   toolbox: {
+    //     show: true,
+    //     feature: {
+    //       mark: { show: true },
+    //       dataView: { show: true, readOnly: false },
+    //       restore: { show: true },
+    //       saveAsImage: { show: true }
+    //     }
+    //   },
+    //   series: [
+    //     {
+    //       name: 'Nightingale Chart 5',
+    //       type: 'pie',
+    //       radius: [20, '45%'],
+    //       center: ['50%', '50%'],
+    //       roseType: 'area',
+    //       itemStyle: {
+    //         borderRadius: 8
+    //       },
+    //       data: chartData5,
+    //       label: {
+    //         formatter: '{b} ({d}%)'  // 显示名称和百分比
+    //       }
+    //     }
+    //   ]
+    // };
 
     if (option1 && typeof option1 === 'object') {
       myChart1.setOption(option1);
@@ -300,16 +335,16 @@
       myChart4.setOption(option4);
     }
 
-    if (option5 && typeof option5 === 'object') {
-        myChart5.setOption(option5);
-    }
+    // if (option5 && typeof option5 === 'object') {
+    //     myChart5.setOption(option5);
+    // }
 
     window.addEventListener('resize', function() {
       myChart1.resize();
       myChart2.resize();
       myChart3.resize();
       myChart4.resize();
-      myChart5.resize();
+      // myChart5.resize();
     });
   </script>
 

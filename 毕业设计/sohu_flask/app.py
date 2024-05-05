@@ -74,8 +74,6 @@ def home():
 def start_crawl():
     return render_template("start_crawl.html")
 
-
-
 @app.route('/data_screen')
 def data_screen():
     # 连接数据库
@@ -84,10 +82,10 @@ def data_screen():
 
     queries = [
         ("新闻", "chart_data1"),
-        ("科技", "chart_data2"),
+        ("娱乐", "chart_data2"),
         ("汽车", "chart_data3"),
         ("财经", "chart_data4"),
-        ("娱乐", "chart_data5"),
+        # ("娱乐", "chart_data5"),
     ]
 
     chart_data = defaultdict(list)

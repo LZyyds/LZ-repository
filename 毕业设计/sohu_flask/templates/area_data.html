@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Awesome-pyecharts</title>
+            <script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts.min.js"></script>
+        <script type="text/javascript" src="https://assets.pyecharts.org/assets/maps/china.js"></script>
+
+</head>
+<body>
+   <div id="chinaMapChart" style="width:800px;height:600px;"></div>
+   <div id="dataList" data-list="{{ data_list }}"></div>
+
+</body>
+   <script type="text/javascript">
+       // 创建一个 ECharts 实例
+       var chinaMapChart = echarts.init(document.getElementById('chinaMapChart'));
+        var data_list = document.getElementById('dataList').getAttribute('data-list');
+        let transformed_data = data_list.map(item => {
+           return {name:item.name,value:item.value};
+        });
+        var new_data_list = JSON.parse(transformed_data);
+        //中国地图
+        function randomData() {
+             return Math.round(Math.random()*500);
+        }
+       var optionChinaMap = {
+           tooltip :{
+               trigger:'item'
+           },
+           legend:{
+               orient:'horizontal',
+               textStyle:{color:'#fff'},
+               x:'left',
+               y:'20',
+               data:['全国数据']
+           },
+           visualMap:{
+               textStyle:{color:'#fff'},
+               x:'left',
+               y:'bottom',
+               splitList:[
+                   {start:1500},{start:900,end:1500},
+                   {start:310,end:1000},{start:200,end:300},
+                   {start:50,end:200},{start:0,end:50},
+               ],
+               color:['#5475f5','#9feaa5','#3FA7FF','#66E0E3','#FFDC5E','#9fb5ea']
+           },
+           series :[
+               {
+                   name:'全国数据',
+                   type:'map',
+                   mapType:'china',
+                   zoom:1.1,
+                   roam:false,
+                   itemStyle:{
+                       normal:{
+                           label:{
+                               show:true,
+                               textStyle:{color:"rgb(249,249,249)"}
+                           }
+                       },
+                       emphasis:{
+                           label:{show:true},
+                       }
+                   },
+                   top:"100",
+                    data: new_data_list
+               }
+           ]
+       };
+       // optionChinaMap['series'][0]['data'] = JSON.parse(document.getElementById('dataList').getAttribute('data-list'));
+       // 使用刚指定的配置项和数据显示图表
+       chinaMapChart.setOption(optionChinaMap);
+
+       window.addEventListener("resize", function() {
+            chinaMapChart.resize();
+       });
+   </script>
+</html>
