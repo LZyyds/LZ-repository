@@ -32,6 +32,8 @@ Mac快捷键：
 - [ ] command+空格：聚焦搜索
 - [ ] command+shift+g：通过路径打开目标所在文件夹
 - [ ] command+shift+4/5:高级截图
+- [ ] command+shift+f：pycharm全局搜索
+- [ ] command+option+ <：pycharm返回调用位置
 
 
 1、全局代理：
@@ -76,8 +78,8 @@ mongodb待优化：http://t.csdnimg.cn/mKZ8O
 
 
 
-Redis安装：http://t.csdnimg.cn/dLi6C
-常用命令：http://t.csdnimg.cn/DjSh0	哈希命令：http://t.csdnimg.cn/MhJHj
+Redis
+常用命令：https://blog.csdn.net/jiepeng2453/article/details/100081072?ops_request_misc=&request_id=&biz_id=102&utm_term=redis命令python操作大全&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-0-100081072.142^v100^control&spm=1018.2226.3001.4187
 To start redis now and restart at login:
   brew services start redis
 Or, if you don't want/need a background service you can just run:
@@ -319,6 +321,23 @@ formatted_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() +
 print(formatted_time)
 
 
+string 转 整数时间戳
+def str2timestamp(string, format):
+        ’’’
+	string: 传入的时间字符串
+        format: 对应的时间格式化字符串
+	’’’
+    return int(time.mktime(time.strptime(string, format)))
+
+1. 函数内部使用了两个时间相关的函数：
+    * time.strptime(string, format)：将字符串格式的日期时间解析为一个时间元组（struct_time）对象，根据指定的格式化字符串进行解析。
+    * time.mktime()：将时间元组对象转换为时间戳（timestamp），即从 1970 年 1 月 1 日 00:00:00 UTC 开始经过的秒数。
+2. 函数的执行步骤如下：
+    * 首先，使用 time.strptime(string, format) 将字符串格式的日期时间解析为时间元组对象。
+    * 然后，使用 time.mktime() 将时间元组对象转换为时间戳。
+    * 最后，使用 int() 将时间戳转换为整数类型，并作为函数的返回值。
+
+
 SQL注入问题
 一、escape_string() 转义
 通过一个具体的例子来说明 escape_string() 函数如何防止 SQL 注入攻击。
@@ -361,4 +380,100 @@ cursor.execute(query, (f'"{title}"',))
 result = cursor.fetchone()
 
 
+XPath基础语法：
+https://blog.csdn.net/qq_26870933/article/details/134630195?csdn_share_tail=%7B%22type%22%3A%22blog%22%2C%22rType%22%3A%22article%22%2C%22rId%22%3A%22134630195%22%2C%22source%22%3A%22weixin_53874665%22%7D&fromshare=blogdetail
+
+在 Scrapy 中，使用 XPath 选择器提取数据时，默认返回的是一个列表（SelectorList）。这个列表包含了所有匹配 XPath 表达式的元素。
+关于 .extract_first()、.extract() 和直接使用选择器的区别，下面通过举例说明：
+1. .extract_first()：
+    * 返回匹配元素列表中的第一个元素的字符串表示。
+    * 如果没有匹配的元素，则返回 None。
+    * 示例：response.xpath('//h1/text()').extract_first()	  假设页面中有多个 <h1> 元素，.extract_first() 将返回第一个 <h1> 元素的文本内容。如果页面中没有 <h1> 元素，则返回 None。
+2. .extract()：
+    * 返回匹配元素列表中所有元素的字符串表示，以列表的形式返回。
+    * 如果没有匹配的元素，则返回一个空列表 []。
+    * 示例：response.xpath('//h1/text()').extract()	  假设页面中有多个 <h1> 元素，.extract() 将返回一个包含所有 <h1> 元素文本内容的列表。如果页面中没有 <h1> 元素，则返回一个空列表 []。
+3. 直接使用选择器：
+    * 返回一个 SelectorList 对象，包含了所有匹配 XPath 表达式的元素。
+    * 可以对返回的 SelectorList 对象进行进一步的操作，如链式调用其他选择器方法。
+    * 示例：response.xpath('//h1')	  返回一个 SelectorList 对象，包含了所有匹配 //h1 的元素。可以对这个对象进行进一步的操作，如提取属性、嵌套选择等。
+
+下面是一个更具体的例子：
+# 假设页面的 HTML 结构如下：
+# <html>
+#   <body>
+#     <h1>Title 1</h1>
+#     <p>Paragraph 1</p>
+#     <h1>Title 2</h1>
+#     <p>Paragraph 2</p>
+#   </body>
+# </html>
+
+# 使用 .extract_first()
+title = response.xpath('//h1/text()').extract_first()
+print(title)  # 输出: Title 1
+
+# 使用 .extract()
+titles = response.xpath('//h1/text()').extract()
+print(titles)  # 输出: ['Title 1', 'Title 2']
+
+# 直接使用选择器
+h1_elements = response.xpath('//h1')
+print(h1_elements)  # 输出: [<Selector xpath='//h1' data='<h1>Title 1</h1>'>, <Selector xpath='//h1' data='<h1>Title 2</h1>'>]
+
+几个相似用法的区别：
+1. response.xpath('//h1').extract_first()：
+    * 返回第一个匹配的 <h1> 元素的字符串表示。
+    * 如果没有匹配的元素，则返回 None。
+    * 示例：title = response.xpath('//h1').extract_first()
+    * print(title)  # 输出: <h1>Title 1</h1>
+
+1. response.xpath('//h1')[0]：
+    * 返回第一个匹配的 <h1> 元素的 Selector 对象。
+    * 如果没有匹配的元素，则会引发 IndexError 异常。
+    * 示例：title_selector = response.xpath('//h1')[0]
+    * print(title_selector)  # 输出: <Selector xpath='//h1' data='<h1>Title 1</h1>'>
+    * title = title_selector.extract_first()
+    * print(title)  # 输出: <h1>Title 1</h1> 
+2. response.xpath('(//div[@class="article"])[1]')：
+    * 直接在 XPath 表达式中指定选择第一个匹配的元素。
+    * 如果没有找到匹配的元素，将返回一个空的 SelectorList 对象。
+    * 对返回的 SelectorList 对象进行操作（如提取文本或属性）时，如果没有找到匹配的元素，将返回 None 或空字符串 ''。
+
+
+
+scrapy中xpath和lxml中xpath对应关系
+
+	# scrapy中的.extract()
+q_text = quick_take.xpath('./text()|.//text()|./p/text()').extract()
+# etree直接xpath
+q_text = quick_take.xpath('./text()|.//text()|./p/text()')
+
+	# scrapy中的.extract_first()
+title = response.xpath('.//div[@class="headline"]//h2/span/text()').extract_first()
+# etree直接xpath
+title= item_lxml.xpath('.//div[@class="headline"]//h2/span/text()')[0]
+
+	# scrapy中的.extract()  （带标签，非纯text（））
+p_arr_str = response.xpath('//div[@id="articleContent"]//p').extract()
+# etree直接xpath
+p_arr = item_lxml.xpath('//div[@id="articleContent"]//p')
+p_arr_str = [html.tostring(element, encoding='unicode').strip() for element in p_arr]
+# 其中html.tostring的html为from lxml import etree, html导入的包
+
+
+使用curl_cffi 绕过jax3指纹-Cloudflare 5s盾
+
+什么是TLS指纹
+TLS指纹，也有人叫JA3指纹，是一种用于识别和验证TLS（传输层安全）通信的技术。
+TLS指纹可以通过检查TLS握手过程中使用的密码套件、协议版本和加密算法等信息来确定TLS通信的特征。由于每个TLS实现使用的密码套件、协议版本和加密算法不同，因此可以通过比较TLS指纹来判断通信是否来自预期的源或目标。
+
+JA3指纹创建过程
+￼
+
+from curl_cffi import requests as cffi_requests
+
+response = cffi_requests.get(url, impersonate="chrome110")
+list_lxml = etree.HTML(response.text)
+后续xpath提取。。。
 
