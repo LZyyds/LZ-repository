@@ -12,6 +12,9 @@
 - [Redis](#section7)
   - [常用命令](#section7-1)
   - [爬虫去重用法](#section7-2)
+  - [过期设置](#section7-3)
+    - [setex()](#section7-3-1)
+    - [expire()](#section7-3-2)
 - [设计模式](#section8)
 - [浅拷贝和深拷贝](#section9)
   - [浅拷贝](#section9-1)
@@ -236,6 +239,38 @@ https://blog.csdn.net/jiepeng2453/article/details/100081072?ops_request_misc=&re
 * 这样做的目的可能是为了控制有序集合的大小，只保留最近的一定数量的历史记录，而移除较早的记录以节省空间。
 * zscore 是 Redis 的一个命令，用于获取有序集合中指定成员的分数（score）。如果 mark 存在于有序集合中，zscore 命令将返回其对应的分数；如果 mark 不存在，则返回 None。最后，函数根据返回结果判断 mark 是否存在于最近爬取的历史记录中。
 
+#### Redis过期设置 <a id="section7-3"></a>
+redis_client.setex() 和 redis_client.expire() 都是用于设置Redis键的过期时间的方法，但它们在使用方式和适用场景上有一些不同。
+
+##### 1、setex() <a id="section7-3-1"></a>
+setex 是 set with expiration 的简写，它结合了 set 和 expire 两个操作，在设置键的同时指定其过期时间。
+
+        用法：redis_client.setex(name, time, value)
+        name: 要设置的键。
+        time: 过期时间（以秒为单位）。
+        value: 要设置的值。
+
+        返回值：通常，setex 方法会返回一个布尔值：
+        True：成功设置了值和过期时间。
+        False：设置失败。
+
+##### 2、expire() <a id="section7-3-2"></a>
+expire 提供了一种独立设置键的过期时间的方法。它通常用于那些你已经设置好键值对之后，再单独为其指定过期时间的场景。
+
+        用法
+        redis_client.expire(name, time)
+        name: 要设置的键。
+        time: 过期时间（以秒为单位）。
+
+        区别与使用场景
+        setex
+        性质: 原子操作，一次性完成键值设置和过期时间设置。
+        适用场景: 在需要同时设置值与过期时间的场景中，比如希望每次设置值时自动附加过期时间。
+        （如：设置临时验证令牌，比如用户注册时发送的验证码，每次生成时都带有固定的过期时间）
+
+        expire
+        性质: 独立操作，通常用于已经存在的键。
+        适用场景: 需要在不同的时间点分别设置值和过期时间的场景，或需要对已经存在的键更新其过期时间。
 ## 设计模式<a id="section8"></a> https://refactoringguru.cn/design-patterns
 
 ### 浅拷贝（shallow copy）和深拷贝（deep copy）<a id="section9"></a>
