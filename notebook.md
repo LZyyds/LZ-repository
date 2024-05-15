@@ -78,6 +78,9 @@
       3、python终端：
       Terminal —》export http_proxy=http://px-local.sosobtc.com:xxxx —> pip install xxx
 
+      浏览器请求头设置：
+        Google 网页插件 --> 安装 ModHeader 插件 --》自定义设置headers中 K-V值
+
 pip清华镜像源：https://pypi.tuna.tsinghua.edu.cn/simple/
 
 pip百度镜像源：https://mirror.baidu.com/pypi/simple/
@@ -87,7 +90,7 @@ pip阿里镜像源：https://mirror.aliyun.com/pypi/simple/
 
 ## XPath基础语法：<a id="section4"></a>
 
-https://blog.csdn.net/qq_26870933/article/details/134630195?csdn_share_tail=%7B%22type%22%3A%22blog%22%2C%22rType%22%3A%22article%22%2C%22rId%22%3A%22134630195%22%2C%22source%22%3A%22weixin_53874665%22%7D&fromshare=blogdetail
+https://blog.csdn.net/qq_26870933/article/details/134630195
 
 ## Scrapy：<a id="section5"></a>
       1、cd 到目标文件夹，如pycharmproject下
@@ -199,11 +202,14 @@ https://blog.csdn.net/qq_26870933/article/details/134630195?csdn_share_tail=%7B%
       查看端口命令：  lsof -i:27017
       * 进入mongodb：mongod --dbpath /usr/local/mongodb/data > 终端输入mongo
       * 退出mongodb：> use admin > db.shutdownServer({force : true})
-
+#### python操作mongodb常用命令： <a id="section6-1"></a>
+https://blog.csdn.net/weixin_44691253/article/details/137473523
+#### MongoDB查询语句的关键字： <a id="section6-2"></a>
+https://blog.csdn.net/xuezhangjun0121/article/details/116272022
 
 ### Redis<a id="section7"></a>
 #### 常用命令： <a id="section7-1"></a>
-https://blog.csdn.net/jiepeng2453/article/details/100081072?ops_request_misc=&request_id=&biz_id=102&utm_term=redis命令python操作大全&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-0-100081072.142^v100^control&spm=1018.2226.3001.4187
+https://blog.csdn.net/jiepeng2453/article/details/100081072
 
       To start redis now and restart at login:
         brew services start redis
@@ -215,7 +221,7 @@ https://blog.csdn.net/jiepeng2453/article/details/100081072?ops_request_misc=&re
       def insert_crawl_history(self, mark, size=100):
           """
               记录爬取请求历史
-              mark 可唯一识别请求的信息	,一般为link链接
+              mark 可唯一识别请求的信息,一般为link链接
               size 记录历史有序集合的大小
           """
           self.server.zadd(self.name + ':history_list', {mark: int(time.time())})
@@ -287,9 +293,12 @@ expire 提供了一种独立设置键的过期时间的方法。它通常用于�
     * 深拷贝后的对象与原始对象之间没有任何引用共享，修改深拷贝对象不会影响原始对象。
     * 可以使用 copy 模块的 deepcopy() 函数来创建对象的深拷贝。
 
-在 Python 中，使用赋值语句 shallow_copy = original_list 实际上并不是浅拷贝，而是创建了一个对原始对象的引用。这意味着 shallow_copy 和 original_list 实际上指向同一个对象。
+在 Python 中，使用赋值语句 shallow_copy = original_list 实际上并不是浅拷贝，而是创建了一个对原始对象的引用。
+
+这意味着 shallow_copy 和 original_list 实际上指向同一个对象。
 当你修改 shallow_copy 时，实际上是在修改 original_list，因为它们引用相同的对象。同样地，修改 original_list 也会反映在 shallow_copy 上。
-修改 shallow_copy 的第一个元素不会影响 original_list，因为它们是不同的对象。但是，对于嵌套的可变对象（如列表 [2, 3]），浅拷贝仍然共享相同的引用，修改嵌套对象会影响到原始对象和浅拷贝对象。
+
+而对于浅拷贝，修改 shallow_copy 的第一个元素不会影响 original_list，因为它们是不同的对象。但是，对于嵌套的可变对象（如列表 [2, 3]），浅拷贝仍然共享相同的引用，修改嵌套对象会影响到原始对象和浅拷贝对象。
 
 ### DNS (Domain Name System) 解析<a id="section10"></a>
 是将域名转换为 IP 地址的过程。以下是 DNS 解析的流程,分点总结:
